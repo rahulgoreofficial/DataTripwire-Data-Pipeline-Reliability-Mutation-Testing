@@ -16,6 +16,7 @@ interface ResultsViewProps {
   report: EvaluationReport;
   onReset: () => void;
   onRetestWithSafeguard?: (ruleKey: string) => void;
+  activeDomain?: string;
 }
 
 const MUTATION_LABELS: Record<string, string> = {
@@ -24,6 +25,12 @@ const MUTATION_LABELS: Record<string, string> = {
   invalid_quantity: "Invalid Quantity",
   invalid_unit_price: "Invalid Unit Price",
   dropped_row: "Dropped Row",
+  // Manufacturing IoT mutations
+  duplicate_sensor_reading: "Duplicate Sensor Reading",
+  missing_sensor_value: "Missing Sensor Value",
+  invalid_sensor_value: "Invalid Sensor Value",
+  dropped_sensor_reading: "Dropped Sensor Reading",
+  invalid_production_value: "Invalid Production Value",
 };
 
 function formatCurrency(val: string | number | null | undefined): string {
@@ -33,15 +40,21 @@ function formatCurrency(val: string | number | null | undefined): string {
   return `₹${n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsViewProps) {
+export function ResultsView({ report, onReset, onRetestWithSafeguard, activeDomain }: ResultsViewProps) {
   const [selectedEvalIndex, setSelectedEvalIndex] = useState<number>(0);
+
+  const isMfg =
+    activeDomain === "manufacturing" ||
+    report.metadata?.domain === "manufacturing" ||
+    report.baseline_metrics?.domain === "manufacturing" ||
+    (report.baseline_metrics?.total_readings !== undefined && report.baseline_metrics?.total_readings !== null);
 
   const survived = report.evaluations.filter((e) => e.applied && e.detected === false);
   const hasSurvived = survived.length > 0;
   const activeEval = report.evaluations[selectedEvalIndex] ?? report.evaluations[0];
+  const isDetected = activeEval?.detected === true;
 
-  // Signature Metric Comparison Calculations
-  // Take the primary evaluation or aggregate report metrics
+  // Sales domain metrics
   const baselineRevStr =
     activeEval?.baseline_metrics?.total_revenue ??
     report.baseline_metrics?.total_revenue ??
@@ -52,14 +65,29 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
       ? String(parseFloat(baselineRevStr) + Number(activeEval.metric_deltas.revenue_delta))
       : baselineRevStr);
 
-  const isDetected = activeEval?.detected === true;
   const baselineRevNum = parseFloat(baselineRevStr) || 0;
   const rawMutatedRevNum = parseFloat(mutatedRevStr) || 0;
-  // When fault is trapped at the validation gate, downstream production ledgers are protected (0 drift)
   const effectiveMutatedRevNum = isDetected ? baselineRevNum : rawMutatedRevNum;
   const deltaAmount = isDetected ? 0 : (effectiveMutatedRevNum - baselineRevNum);
   const deltaPct = baselineRevNum > 0 ? (deltaAmount / baselineRevNum) * 100 : 0;
 
+  // Manufacturing domain metrics
+  const baselineReadings =
+    activeEval?.baseline_metrics?.total_readings ??
+    report.baseline_metrics?.total_readings ??
+    0;
+  const baselineUnits =
+    activeEval?.baseline_metrics?.total_units_produced ??
+    report.baseline_metrics?.total_units_produced ??
+    0;
+  const rawMutatedUnits =
+    activeEval?.mutated_metrics?.total_units_produced ??
+    (activeEval?.metric_deltas?.units_produced_delta !== undefined
+      ? baselineUnits + Number(activeEval.metric_deltas.units_produced_delta)
+      : baselineUnits);
+  const effectiveMutatedUnits = isDetected ? baselineUnits : rawMutatedUnits;
+  const deltaUnits = isDetected ? 0 : (effectiveMutatedUnits - baselineUnits);
+  const deltaUnitsPct = baselineUnits > 0 ? (deltaUnits / baselineUnits) * 100 : 0;
 
   return (
     <div>
@@ -76,11 +104,11 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
       >
         <div>
           <div className="hero-kicker" style={{ marginBottom: "8px" }}>
-            Investigation // Evaluation Findings
+            Investigation // Evaluation Findings · {isMfg ? "Industrial IoT Domain" : "E-Commerce Sales Domain"}
           </div>
           <h2 style={{ marginBottom: "6px" }}>Pipeline Reliability Audit</h2>
           <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>
-            REPORT_ID: {report.report_id} · DATASET: {report.dataset_id}
+            REPORT_ID: {report.report_id} · DATASET: {report.dataset_id} · DOMAIN: {isMfg ? "MANUFACTURING TELEMETRY" : "RETAIL SALES"}
           </p>
         </div>
 
@@ -91,7 +119,7 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
         </div>
       </div>
 
-      {/* ── SIGNATURE BUSINESS-IMPACT COMPARISON ───────────────────── */}
+      {/* ── SIGNATURE BUSINESS/OPERATIONAL IMPACT COMPARISON ─────────── */}
       <div className="signature-comparison-card">
         <div className="signature-comparison-header">
           <div>
@@ -105,7 +133,7 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
                   color: hasSurvived ? "var(--clr-signal-orange)" : "var(--clr-success)",
                 }}
               >
-                BUSINESS METRIC INTEGRITY ANALYSIS
+                {isMfg ? "OPERATIONAL TELEMETRY INTEGRITY ANALYSIS" : "BUSINESS METRIC INTEGRITY ANALYSIS"}
               </span>
               <span
                 className={`badge ${hasSurvived ? "badge-danger" : "badge-success"}`}
@@ -115,7 +143,9 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
               </span>
             </div>
             <p style={{ fontSize: "0.82rem", color: "#A3AAB8", marginTop: "4px" }}>
-              Comparing pre-mutation ledger baseline against post-mutation corrupted pipeline state
+              {isMfg
+                ? "Comparing pre-mutation industrial telemetry baseline against post-mutation corrupted pipeline state"
+                : "Comparing pre-mutation ledger baseline against post-mutation corrupted pipeline state"}
             </p>
           </div>
 
@@ -146,10 +176,16 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
         <div className="signature-comparison-grid">
           {/* Baseline Node */}
           <div className="metric-node">
-            <span className="metric-node-kicker">Baseline Revenue (Clean)</span>
-            <span className="metric-node-amount">{formatCurrency(baselineRevNum)}</span>
+            <span className="metric-node-kicker">
+              {isMfg ? "Baseline Production Units" : "Baseline Revenue (Clean)"}
+            </span>
+            <span className="metric-node-amount">
+              {isMfg ? `${baselineUnits.toLocaleString()} Units` : formatCurrency(baselineRevNum)}
+            </span>
             <span className="metric-node-subtext">
-              15 Verified Transactions · 0 Anomalies
+              {isMfg
+                ? `${baselineReadings.toLocaleString()} Verified Sensor Frames · 0 Anomalies`
+                : "15 Verified Transactions · 0 Anomalies"}
             </span>
           </div>
 
@@ -158,23 +194,33 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
           {/* Mutated Node */}
           <div className="metric-node">
             <span className="metric-node-kicker">
-              {isDetected ? "Pipeline Output (Protected)" : "Mutated Revenue (Observed)"}
+              {isDetected
+                ? "Pipeline Output (Protected)"
+                : isMfg
+                ? "Mutated Units (Observed)"
+                : "Mutated Revenue (Observed)"}
             </span>
             <span
               className="metric-node-amount"
               style={{
                 color: isDetected
                   ? "var(--clr-success)"
-                  : Math.abs(deltaAmount) > 0
+                  : (isMfg ? Math.abs(deltaUnits) > 0 : Math.abs(deltaAmount) > 0)
                   ? "var(--clr-signal-orange)"
                   : "#FFFFFF",
               }}
             >
-              {formatCurrency(effectiveMutatedRevNum)}
+              {isMfg
+                ? `${effectiveMutatedUnits.toLocaleString()} Units`
+                : formatCurrency(effectiveMutatedRevNum)}
             </span>
             <span className="metric-node-subtext">
               {isDetected
                 ? "Corrupt Records Intercepted & Blocked"
+                : isMfg
+                ? activeEval?.mutation_spec.mutation_type === "duplicate_sensor_reading"
+                  ? "Includes Unchecked Duplicate Telemetry Frame"
+                  : "Post-Mutation Pipeline State"
                 : activeEval?.mutation_spec.mutation_type === "duplicate_row"
                 ? "Includes Unchecked Duplicate ORD-101"
                 : "Post-Mutation Pipeline State"}
@@ -183,30 +229,162 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
 
           <div className="metric-divider-arrow">=</div>
 
-          {/* Business Impact Delta */}
-          <div className={`metric-delta-box ${Math.abs(deltaAmount) === 0 ? "safe" : ""}`}>
+          {/* Business/Operational Impact Delta */}
+          <div
+            className={`metric-delta-box ${
+              (isMfg ? Math.abs(deltaUnits) === 0 : Math.abs(deltaAmount) === 0) ? "safe" : ""
+            }`}
+          >
             <span className="metric-delta-label">
-              {Math.abs(deltaAmount) === 0 ? "Drift Magnitude (Zero)" : "Net Revenue Distortion"}
+              {(isMfg ? Math.abs(deltaUnits) === 0 : Math.abs(deltaAmount) === 0)
+                ? "Drift Magnitude (Zero)"
+                : isMfg
+                ? "Net Production Drift"
+                : "Net Revenue Distortion"}
             </span>
             <span className="metric-delta-amount">
-              {deltaAmount > 0 ? `+${formatCurrency(deltaAmount)}` : formatCurrency(deltaAmount)}
+              {isMfg
+                ? deltaUnits > 0
+                  ? `+${deltaUnits.toLocaleString()} Units`
+                  : `${deltaUnits.toLocaleString()} Units`
+                : deltaAmount > 0
+                ? `+${formatCurrency(deltaAmount)}`
+                : formatCurrency(deltaAmount)}
             </span>
             <span className="metric-delta-pct">
-              {Math.abs(deltaAmount) === 0
+              {(isMfg ? Math.abs(deltaUnits) === 0 : Math.abs(deltaAmount) === 0)
                 ? "0.0% variance from ground truth"
+                : isMfg
+                ? `${deltaUnitsPct > 0 ? "+" : ""}${deltaUnitsPct.toFixed(2)}% downstream aggregation drift`
                 : `${deltaPct > 0 ? "+" : ""}${deltaPct.toFixed(2)}% downstream ledger error`}
             </span>
           </div>
         </div>
       </div>
 
+      {/* ── MANUFACTURING OPERATIONAL TELEMETRY METRICS STRIP ─────── */}
+      {isMfg && report.baseline_metrics && (
+        <div
+          className="card"
+          style={{
+            marginBottom: "24px",
+            padding: "16px 20px",
+            backgroundColor: "var(--clr-surface-raised)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.72rem",
+              fontWeight: 700,
+              color: "var(--clr-signal-orange)",
+              letterSpacing: "0.06em",
+              marginBottom: "12px",
+              textTransform: "uppercase",
+            }}
+          >
+            Industrial Telemetry Baseline Measurements
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+              gap: "16px",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "var(--clr-text-secondary)" }}>
+                Avg Operating Temp
+              </div>
+              <div style={{ fontSize: "1.15rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                {report.baseline_metrics.avg_temperature_c?.toFixed(1) ?? "—"} °C
+              </div>
+              <div style={{ fontSize: "0.68rem", color: "var(--clr-text-secondary)" }}>
+                Max: {report.baseline_metrics.max_temperature_c?.toFixed(1) ?? "—"} °C
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "var(--clr-text-secondary)" }}>
+                Avg Vibration
+              </div>
+              <div style={{ fontSize: "1.15rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                {report.baseline_metrics.avg_vibration_mm_s?.toFixed(2) ?? "—"} mm/s
+              </div>
+              <div style={{ fontSize: "0.68rem", color: "var(--clr-text-secondary)" }}>
+                Max: {report.baseline_metrics.max_vibration_mm_s?.toFixed(2) ?? "—"} mm/s
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "var(--clr-text-secondary)" }}>
+                Avg Pressure
+              </div>
+              <div style={{ fontSize: "1.15rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                {report.baseline_metrics.avg_pressure_bar?.toFixed(2) ?? "—"} bar
+              </div>
+              <div style={{ fontSize: "0.68rem", color: "var(--clr-text-secondary)" }}>
+                Current: {report.baseline_metrics.avg_motor_current_a?.toFixed(1) ?? "—"} A
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "var(--clr-text-secondary)" }}>
+                Total Energy Consumed
+              </div>
+              <div style={{ fontSize: "1.15rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                {report.baseline_metrics.total_energy_kwh?.toFixed(1) ?? "—"} kWh
+              </div>
+              <div style={{ fontSize: "0.68rem", color: "var(--clr-text-secondary)" }}>
+                Across distinct intervals
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "var(--clr-text-secondary)" }}>
+                Total Defects
+              </div>
+              <div style={{ fontSize: "1.15rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                {report.baseline_metrics.total_defect_count?.toLocaleString() ?? "—"}
+              </div>
+              <div style={{ fontSize: "0.68rem", color: "var(--clr-text-secondary)" }}>
+                Defective units
+              </div>
+            </div>
+
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "var(--clr-text-secondary)" }}>
+                Quality Pass Rate
+              </div>
+              <div
+                style={{
+                  fontSize: "1.15rem",
+                  fontWeight: 700,
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--clr-success)",
+                }}
+              >
+                {report.baseline_metrics.avg_quality_pass_rate_pct?.toFixed(2) ?? "—"}%
+              </div>
+              <div style={{ fontSize: "0.68rem", color: "var(--clr-text-secondary)" }}>
+                Production average
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── LIVE PIPELINE DIAGRAM LINKED TO EVALUATION STATE ──────── */}
       <div style={{ marginBottom: "28px" }}>
         <PipelineIllustration
           mode="live"
           status={hasSurvived ? "survived" : "detected"}
-          mutationType={activeEval?.mutation_spec.mutation_type || "duplicate_row"}
+          mutationType={
+            activeEval?.mutation_spec.mutation_type ||
+            (isMfg ? "duplicate_sensor_reading" : "duplicate_row")
+          }
           hasUniquenessRule={!hasSurvived}
+          domain={isMfg ? "manufacturing" : "sales"}
         />
       </div>
 
@@ -338,7 +516,11 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
                       <strong>VULNERABILITY VERIFIED:</strong> No validation rules flagged this
                       mutation. The {MUTATION_LABELS[ev.mutation_spec.mutation_type] || ev.mutation_spec.mutation_type}
                       {ev.mutation_spec.target_record_id ? ` on ${ev.mutation_spec.target_record_id}` : ""} traversed the pipeline undetected
-                      {ev.metric_deltas?.revenue_delta !== undefined && Number(ev.metric_deltas.revenue_delta) !== 0
+                      {isMfg
+                        ? ev.metric_deltas?.units_produced_delta !== undefined && Number(ev.metric_deltas.units_produced_delta) !== 0
+                          ? `, causing a ${Number(ev.metric_deltas.units_produced_delta) > 0 ? "+" : ""}${Number(ev.metric_deltas.units_produced_delta).toLocaleString()} units distortion in downstream manufacturing ledgers.`
+                          : ". Safeguards must be hardened to detect this fault."
+                        : ev.metric_deltas?.revenue_delta !== undefined && Number(ev.metric_deltas.revenue_delta) !== 0
                         ? `, causing a ${Number(ev.metric_deltas.revenue_delta) > 0 ? "+" : ""}${formatCurrency(Number(ev.metric_deltas.revenue_delta))} silent revenue distortion in downstream ledgers.`
                         : ". Safeguards must be hardened to detect this fault."}
                     </div>
@@ -402,7 +584,8 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
                       className="btn btn-signal w-full"
                       onClick={() => {
                         const ruleKey =
-                          Object.keys(reco.suggested_rule_config)[0] || "check_unique_transaction_id";
+                          Object.keys(reco.suggested_rule_config)[0] ||
+                          (isMfg ? "check_machine_timestamp_unique" : "check_unique_transaction_id");
                         onRetestWithSafeguard?.(ruleKey);
                       }}
                     >
@@ -427,12 +610,25 @@ export function ResultsView({ report, onReset, onRetestWithSafeguard }: ResultsV
           <div className="card" style={{ marginTop: "16px", backgroundColor: "var(--clr-surface-raised)" }}>
             <h4 style={{ marginBottom: "6px" }}>The Two-Step Hackathon Demo</h4>
             <ol style={{ fontSize: "0.82rem", paddingLeft: "16px", color: "var(--clr-text-secondary)", lineHeight: 1.6 }}>
-              <li>
-                <strong>Evaluation 1:</strong> Duplicate row with Uniqueness OFF → 0% score, ₹800 drift. (Survived)
-              </li>
-              <li>
-                <strong>Evaluation 2:</strong> Duplicate row with Uniqueness ON → 100% score, ₹0 drift. (Trapped)
-              </li>
+              {isMfg ? (
+                <>
+                  <li>
+                    <strong>Evaluation 1:</strong> Duplicate sensor reading with Composite Machine/Timestamp Uniqueness OFF → 0% score, duplicate telemetry stream leak. (Survived)
+                  </li>
+                  <li>
+                    <strong>Evaluation 2:</strong> Duplicate sensor reading with Composite Machine/Timestamp Uniqueness ON → 100% score, zero drift. (Trapped)
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <strong>Evaluation 1:</strong> Duplicate row with Uniqueness OFF → 0% score, ₹800 drift. (Survived)
+                  </li>
+                  <li>
+                    <strong>Evaluation 2:</strong> Duplicate row with Uniqueness ON → 100% score, ₹0 drift. (Trapped)
+                  </li>
+                </>
+              )}
             </ol>
           </div>
         </div>

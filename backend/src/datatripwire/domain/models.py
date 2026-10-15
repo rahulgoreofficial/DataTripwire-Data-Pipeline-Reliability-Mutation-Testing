@@ -81,6 +81,22 @@ class DatasetProfile(BaseModel):
         default=False,
         description="True if dataset conforms to canonical sales schema"
     )
+    is_manufacturing_compatible: bool = Field(
+        default=False,
+        description="True if dataset conforms to manufacturing industrial IoT schema"
+    )
+    detected_domain: str = Field(
+        default="sales",
+        description="Detected domain based on dataset columns (sales, manufacturing, general)"
+    )
+    domain_compatibility: Dict[str, bool] = Field(
+        default_factory=dict,
+        description="Compatibility status for each supported domain"
+    )
+    supported_domains: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Detailed metadata for all supported domains"
+    )
     warnings: List[str] = Field(
         default_factory=list,
         description="Schema or profiling warnings"
@@ -147,32 +163,118 @@ class MutationSpec(BaseModel):
                 # Set reasonable default column if omitted
                 default_col = "quantity" if self.mutation_type == MutationType.INVALID_QUANTITY else "unit_price"
                 object.__setattr__(self, "target_column", default_col)
+        elif self.mutation_type == MutationType.INVALID_SENSOR_VALUE and not self.target_column:
+            object.__setattr__(self, "target_column", "vibration_mm_s")
+        elif self.mutation_type == MutationType.MISSING_SENSOR_VALUE and not self.target_column:
+            object.__setattr__(self, "target_column", "temperature_c")
+        elif self.mutation_type == MutationType.INVALID_PRODUCTION_VALUE and not self.target_column:
+            object.__setattr__(self, "target_column", "defect_count")
         return self
 
 
 class PipelineMetrics(BaseModel):
-    """Measurable business outputs produced by the sales data pipeline.
+    """Measurable business or operational outputs produced by the data pipeline.
     
     All monetary calculations maintain two decimal places precision using Decimal
     to avoid binary floating-point representation anomalies.
     """
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(frozen=True, extra="allow")
 
-    total_revenue: Decimal = Field(..., description="Sum of (quantity * unit_price) across transactions")
-    transaction_count: int = Field(..., ge=0, description="Total count of transactions processed")
-    customer_count: int = Field(..., ge=0, description="Count of distinct customers represented")
+    domain: str = Field(default="sales", description="Domain profile of the metrics (sales, manufacturing, general)")
+
+    # E-commerce sales business metrics
+    total_revenue: Optional[Decimal] = Field(
+        default=None,
+        description="Sum of (quantity * unit_price) across transactions (sales domain)"
+    )
+    transaction_count: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Total count of transactions processed (sales domain)"
+    )
+    customer_count: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Count of distinct customers represented (sales domain)"
+    )
     average_order_value: Optional[Decimal] = Field(
         default=None,
         description="Average revenue per transaction (revenue / transaction_count)"
     )
+
+    # Manufacturing industrial IoT metrics
+    total_readings: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Total count of telemetry readings recorded"
+    )
+    unique_machines: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Count of unique machine identifiers active in dataset"
+    )
+    unique_facilities: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Count of unique facility identifiers in dataset"
+    )
+    total_units_produced: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Total production units manufactured"
+    )
+    total_defect_count: Optional[int] = Field(
+        default=None,
+        ge=0,
+        description="Total defect count recorded across all batches"
+    )
+    total_energy_kwh: Optional[float] = Field(
+        default=None,
+        description="Total energy consumption in kWh aggregated"
+    )
+    avg_temperature_c: Optional[float] = Field(
+        default=None,
+        description="Average machine temperature in Celsius"
+    )
+    max_temperature_c: Optional[float] = Field(
+        default=None,
+        description="Peak machine temperature in Celsius"
+    )
+    avg_vibration_mm_s: Optional[float] = Field(
+        default=None,
+        description="Average vibration in mm/s"
+    )
+    max_vibration_mm_s: Optional[float] = Field(
+        default=None,
+        description="Peak vibration in mm/s"
+    )
+    avg_pressure_bar: Optional[float] = Field(
+        default=None,
+        description="Average pressure in bar"
+    )
+    avg_motor_current_a: Optional[float] = Field(
+        default=None,
+        description="Average motor current in amperes"
+    )
+    avg_quality_pass_rate_pct: Optional[float] = Field(
+        default=None,
+        description="Average quality pass rate percentage (0-100%)"
+    )
+
+    manufacturing_metrics: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Structured key-value dictionary of all manufacturing metrics"
+    )
     additional_metrics: Dict[str, Any] = Field(
         default_factory=dict,
-        description="Optional supplementary business indicators"
+        description="Optional supplementary business or operational indicators"
     )
 
     @field_validator("total_revenue", mode="before")
     @classmethod
-    def parse_revenue(cls, v: Any) -> Decimal:
+    def parse_revenue(cls, v: Any) -> Optional[Decimal]:
+        if v is None:
+            return None
         return _to_two_decimal_places(v)
 
     @field_validator("average_order_value", mode="before")
@@ -188,7 +290,12 @@ class PipelineMetrics(BaseModel):
 
     @model_validator(mode="after")
     def compute_aov_if_missing(self) -> PipelineMetrics:
-        if self.average_order_value is None and self.transaction_count > 0:
+        if (
+            self.total_revenue is not None
+            and self.average_order_value is None
+            and self.transaction_count is not None
+            and self.transaction_count > 0
+        ):
             computed = (self.total_revenue / Decimal(self.transaction_count)).quantize(
                 Decimal("0.01"), rounding=ROUND_HALF_UP
             )

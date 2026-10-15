@@ -38,6 +38,7 @@ def run_evaluation(
         dataset_id=dataset_id,
         mutations=payload.mutations,
         rules=payload.rules,
+        domain=payload.domain,
     )
 
     # Persist and return report

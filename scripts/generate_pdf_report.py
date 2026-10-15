@@ -2,9 +2,9 @@
 """DataTripwire Comprehensive Project Report PDF Generator.
 
 Builds an engineering-grade, publication-quality 16-page PDF report
-documenting DataTripwire's foundation, architecture, mutation engine,
+documenting DataTripwire's multi-domain architecture, mutation engine,
 validation rules, API specifications, UI engineering, test verification,
-limitations, and roadmap.
+sample datasets catalog, limitations, and roadmap.
 """
 
 from datetime import datetime, timezone
@@ -16,7 +16,6 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
 from reportlab.platypus import (
-    KeepTogether,
     PageBreak,
     Paragraph,
     SimpleDocTemplate,
@@ -74,7 +73,7 @@ class NumberedCanvas(canvas.Canvas):
         self.drawString(54, 755, "DATATRIPWIRE")
         self.setFont("Helvetica", 7)
         self.setFillColor(TEXT_MUTED)
-        self.drawString(124, 755, "// COMPREHENSIVE PROJECT REPORT & ARCHITECTURE SPECIFICATION")
+        self.drawString(124, 755, "// MULTI-DOMAIN DATA RELIABILITY LAB · ARCHITECTURE & AUDIT REPORT")
         self.drawRightString(558, 755, "OCTOBER 2026")
 
         self.setStrokeColor(BORDER_LIGHT)
@@ -85,7 +84,7 @@ class NumberedCanvas(canvas.Canvas):
         self.line(54, 45, 558, 45)
         self.setFont("Helvetica", 7.5)
         self.setFillColor(TEXT_MUTED)
-        self.drawString(54, 32, "DataTripwire — Data Pipeline Reliability & Mutation Testing Platform")
+        self.drawString(54, 32, "DataTripwire — Multi-Domain Data Pipeline Reliability & Mutation Testing Platform")
         page_str = f"Page {self._pageNumber} of {total_pages}"
         self.drawRightString(558, 32, page_str)
         self.restoreState()
@@ -118,11 +117,11 @@ def create_styles():
         "SectionH1",
         parent=base["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=15,
-        leading=19,
+        fontSize=14,
+        leading=18,
         textColor=NAVY_PRIMARY,
-        spaceBefore=8,
-        spaceAfter=6,
+        spaceBefore=7,
+        spaceAfter=5,
         keepWithNext=True,
     )
 
@@ -130,10 +129,10 @@ def create_styles():
         "SectionH2",
         parent=base["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=10.5,
-        leading=14.5,
+        fontSize=10,
+        leading=14,
         textColor=NAVY_SECONDARY,
-        spaceBefore=8,
+        spaceBefore=7,
         spaceAfter=4,
         keepWithNext=True,
     )
@@ -142,18 +141,18 @@ def create_styles():
         "BodyDark",
         parent=base["Normal"],
         fontName="Helvetica",
-        fontSize=8.6,
-        leading=12.8,
+        fontSize=8.4,
+        leading=12.4,
         textColor=TEXT_PRIMARY,
-        spaceAfter=6,
+        spaceAfter=5,
     )
 
     bullet_style = ParagraphStyle(
         "BulletDark",
         parent=base["Normal"],
         fontName="Helvetica",
-        fontSize=8.2,
-        leading=12.2,
+        fontSize=8.0,
+        leading=11.8,
         textColor=TEXT_PRIMARY,
         leftIndent=12,
         spaceAfter=3,
@@ -163,17 +162,8 @@ def create_styles():
         "CodeText",
         parent=base["Normal"],
         fontName="Courier",
-        fontSize=7.4,
-        leading=9.8,
-        textColor=NAVY_PRIMARY,
-    )
-
-    code_block = ParagraphStyle(
-        "CodeBlock",
-        parent=base["Normal"],
-        fontName="Courier",
-        fontSize=7.0,
-        leading=9.4,
+        fontSize=7.2,
+        leading=9.6,
         textColor=NAVY_PRIMARY,
     )
 
@@ -181,8 +171,8 @@ def create_styles():
         "CalloutText",
         parent=base["Normal"],
         fontName="Helvetica",
-        fontSize=8.2,
-        leading=12.0,
+        fontSize=8.0,
+        leading=11.6,
         textColor=NAVY_PRIMARY,
     )
 
@@ -190,8 +180,8 @@ def create_styles():
         "TableHeader",
         parent=base["Normal"],
         fontName="Helvetica-Bold",
-        fontSize=7.8,
-        leading=10.2,
+        fontSize=7.6,
+        leading=9.8,
         textColor=colors.white,
     )
 
@@ -199,8 +189,8 @@ def create_styles():
         "TableCell",
         parent=base["Normal"],
         fontName="Helvetica",
-        fontSize=7.6,
-        leading=10.4,
+        fontSize=7.4,
+        leading=10.0,
         textColor=TEXT_PRIMARY,
     )
 
@@ -212,7 +202,6 @@ def create_styles():
         "body": body_style,
         "bullet": bullet_style,
         "code": code_style,
-        "code_block": code_block,
         "callout": callout_text,
         "th": table_header,
         "td": table_cell,
@@ -227,10 +216,10 @@ def make_callout(text: str, styles, border_color=SIGNAL_ORANGE, bg_color=ORANGE_
             [
                 ("BACKGROUND", (0, 0), (-1, -1), bg_color),
                 ("BOX", (0, 0), (-1, -1), 1, border_color),
-                ("TOPPADDING", (0, 0), (-1, -1), 6),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-                ("LEFTPADDING", (0, 0), (-1, -1), 10),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 5),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+                ("LEFTPADDING", (0, 0), (-1, -1), 9),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 9),
             ]
         )
     )
@@ -275,8 +264,8 @@ def build_pdf_report():
     story.append(Paragraph("DataTripwire", styles["title_cover"]))
     story.append(
         Paragraph(
-            "<b>Data Pipeline Reliability & Mutation Testing Platform</b><br/>"
-            "Evaluating whether existing data-quality safeguards detect realistic failures before silent corruption cascades into downstream ledgers and analytics.",
+            "<b>Multi-Domain Data Pipeline Reliability & Mutation Testing Platform</b><br/>"
+            "Evaluating whether existing data-quality safeguards detect realistic data corruptions across E-Commerce Transactions and Industrial IoT Telemetry before silent errors cascade into downstream ledgers and analytics.",
             styles["subtitle_cover"],
         )
     )
@@ -284,8 +273,9 @@ def build_pdf_report():
     story.append(
         make_callout(
             "<b>Core Technical Proposition:</b> <i>\"Break the data. Test the safeguards. Protect the metrics.\"</i><br/>"
-            "While traditional data quality monitors raw record compliance against static rules, DataTripwire introduces "
-            "adversarial mutation testing to evaluate the safeguards themselves.",
+            "Traditional data quality passively checks whether incoming batches comply with rules. DataTripwire transposes "
+            "adversarial mutation testing to evaluate the safeguards themselves, measuring the exact business and operational "
+            "distortion caused when faults traverse pipelines undetected.",
             styles,
             border_color=SIGNAL_ORANGE,
             bg_color=ORANGE_BG,
@@ -295,9 +285,10 @@ def build_pdf_report():
 
     # Cover Meta Grid
     meta_data = [
-        [Paragraph("<b>Document Version</b>", styles["td"]), Paragraph("v0.1.0 (Production Release Candidate)", styles["td"])],
+        [Paragraph("<b>Document Version</b>", styles["td"]), Paragraph("v0.2.0 (Multi-Domain Release)", styles["td"])],
         [Paragraph("<b>Publication Date</b>", styles["td"]), Paragraph(datetime.now(timezone.utc).strftime("%B %d, %Y"), styles["td"])],
-        [Paragraph("<b>Product Status</b>", styles["td"]), Paragraph("Phases 1–3 Complete · Verified Offline & Local Runtime", styles["td"])],
+        [Paragraph("<b>Supported Domains</b>", styles["td"]), Paragraph("E-Commerce Sales (`sales`), Manufacturing IoT (`manufacturing`), General CSV", styles["td"])],
+        [Paragraph("<b>Product Status</b>", styles["td"]), Paragraph("All Core Phases & Multi-Domain Engine Verified · 140/140 Tests Passing", styles["td"])],
         [Paragraph("<b>GitHub Repository</b>", styles["td"]), Paragraph("rahulgoreofficial/DataTripwire-Data-Pipeline-Reliability-Mutation-Testing", styles["td"])],
         [Paragraph("<b>Technology Stack</b>", styles["td"]), Paragraph("Python 3.11+, FastAPI, Pandas, Pydantic v2, React 19, TypeScript, Vite", styles["td"])],
         [Paragraph("<b>Lead Engineer / Author</b>", styles["td"]), Paragraph("Rahul Gore (rahulgoreoffical@gmail.com)", styles["td"])],
@@ -309,13 +300,13 @@ def build_pdf_report():
                 ("BACKGROUND", (0, 0), (-1, -1), BG_LIGHT),
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
-                ("PADDING", (0, 0), (-1, -1), 5.5),
+                ("PADDING", (0, 0), (-1, -1), 5.0),
             ]
         )
     )
     story.append(meta_table)
 
-    story.append(Spacer(1, 16))
+    story.append(Spacer(1, 14))
     story.append(Paragraph("<b>Table of Report Sections:</b>", styles["h2"]))
 
     toc_items = [
@@ -325,7 +316,7 @@ def build_pdf_report():
         "07. Synthetic Mutation Engine & Operators", "08. Validation Engine & Fault Detection Logic",
         "09. Business Metrics & Mutation Scoring Formulation", "10. Backend REST API Reference",
         "11. Frontend Design & User Experience Engineering", "12. Installation, Environment & Startup Procedures",
-        "13. Automated Testing, Verification & Quality Assurance", "14. End-to-End Demonstration Scenario",
+        "13. Automated Testing, Verification & Quality Assurance", "14. Sample Datasets & Demonstration Scenarios",
         "15. Differentiation & Tool Landscape Comparison", "16. Security, Local Privacy & Architectural Boundaries",
         "17. Development Roadmap & Future Enhancements", "18. Engineering Conclusion",
         "19. Technical Appendix & Source Artifacts", "20. Document Attestation & Verification Record",
@@ -342,7 +333,7 @@ def build_pdf_report():
     toc_table.setStyle(
         TableStyle(
             [
-                ("PADDING", (0, 0), (-1, -1), 3),
+                ("PADDING", (0, 0), (-1, -1), 2.5),
                 ("BACKGROUND", (0, 0), (-1, -1), colors.white),
             ]
         )
@@ -356,9 +347,9 @@ def build_pdf_report():
     story.append(Paragraph("1. Executive Summary", styles["h1"]))
     story.append(
         Paragraph(
-            "Modern data pipelines powering analytics, machine learning, and executive financial dashboards "
-            "frequently suffer from a silent failure mode: pipelines complete execution with exit code <code>0</code> "
-            "while ingesting corrupt, duplicated, or invalid records. Traditional data-quality tools monitor "
+            "Modern data pipelines powering executive financial dashboards, operational equipment telemetry, and ML models "
+            "frequently suffer from a dangerous failure mode: pipelines complete execution with exit status <code>0</code> "
+            "while processing corrupted, duplicated, or drifted data. Traditional data-quality tools passively monitor "
             "production tables against static rules, but data engineering teams rarely have a structured mechanism "
             "to test whether those rules are actually capable of catching realistic, critical data corruptions.",
             styles["body"],
@@ -366,24 +357,20 @@ def build_pdf_report():
     )
     story.append(
         Paragraph(
-            "<b>DataTripwire</b> bridges this verification gap by introducing <b>mutation testing for data pipelines</b>. "
-            "Rather than treating data quality checks as infallible guardians, DataTripwire operates as a crash-testing "
-            "laboratory: it injects controlled, synthetic data faults into isolated working copies of production datasets, "
-            "executes the active validation suite, empirically verifies whether the faults trigger relevant checkpoints, "
-            "and measures downstream ledger distortion when faults escape.",
+            "<b>DataTripwire</b> bridges this verification gap by introducing <b>adversarial mutation testing for data pipelines</b>. "
+            "Operating as a data crash-testing laboratory, it injects controlled, synthetic data faults into isolated working "
+            "copies of datasets, executes the active validation suite, empirically verifies whether the faults trigger relevant checkpoints, "
+            "and measures downstream ledger or telemetry distortion when faults escape.",
             styles["body"],
         )
     )
     story.append(
         Paragraph(
-            "The completed prototype provides a 100% local, privacy-preserving full-stack solution featuring: "
-            "(1) a robust Python 3.11+ / FastAPI backend with Pydantic v2 data contracts and Decimal financial precision; "
-            "(2) an isolated mutation engine supporting 5 synthetic fault classes; "
-            "(3) a multi-checkpoint validator and fingerprint-based detection matcher; "
-            "(4) a deterministic rule recommendation engine; and "
-            "(5) a React 19 + TypeScript frontend with dual-theme (Daylight and After Hours) design and SVG flow visualization. "
-            "The entire application launches via a single Windows double-click (<code>start_datatripwire.bat</code>) with "
-            "automated readiness detection and targeted process supervision.",
+            "Originally specialized for e-commerce transactions, DataTripwire has been upgraded into a <b>multi-domain platform</b> "
+            "supporting: (1) E-Commerce Sales (`sales`); (2) Manufacturing / Industrial IoT (`manufacturing`) telemetry monitoring; "
+            "and (3) General Tabular CSV Profiling (`general`). The system provides 100% local, privacy-preserving execution with "
+            "a robust FastAPI backend, Pydantic v2 data contracts, exact Decimal monetary arithmetic, React 19 dual-theme UI, "
+            "and one-click Windows startup (<code>start_datatripwire.bat</code>).",
             styles["body"],
         )
     )
@@ -391,34 +378,34 @@ def build_pdf_report():
     story.append(
         make_callout(
             "<b>Executive Takeaway:</b> DataTripwire proves data quality through empirical evidence rather than assumption. "
-            "In verified demonstrations, a duplicate ingestion fault producing a +₹1,000.00 silent revenue distortion "
-            "was allowed to escape baseline validation (0% detection score), flagged with an actionable rule recommendation, "
-            "and successfully trapped (100% score, ₹0.00 drift) once the recommended safeguard was enabled.",
+            "In verified demonstrations across both retail sales and a 5,040-record industrial IoT dataset, unhandled ingestion "
+            "duplicates (0% detection score) escape baseline safeguards, cause measurable metric drift (+₹800 revenue or distorted "
+            "production totals), and are successfully trapped (100% score, 0 drift) once recommended safeguards are enabled.",
             styles,
             border_color=EMERALD_GREEN,
             bg_color=GREEN_BG,
         )
     )
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
 
     story.append(Paragraph("2. Problem Statement: Silent Data Degradation", styles["h1"]))
     story.append(
         Paragraph(
-            "Enterprise data teams face a fundamental asymmetry in data testing: software engineers routinely test "
-            "code paths with extensive unit and integration tests, yet data pipelines are typically tested only against "
-            "clean historical data. When unexpected anomalies emerge, pipelines silently fail:",
+            "Enterprise data teams face a fundamental asymmetry: software engineers routinely test code paths with unit "
+            "and integration tests, yet data pipelines are typically tested only against clean historical feeds. "
+            "When unexpected anomalies emerge, pipelines silently fail:",
             styles["body"],
         )
     )
-    story.append(Paragraph("• <b>Ingestion Replay & Duplicate Transactions:</b> Upstream webhook retries or message queue replays generate duplicate sales rows. Without primary-key uniqueness verification, aggregate revenue and transaction volumes inflate silently without triggering database syntax errors.", styles["bullet"]))
-    story.append(Paragraph("• <b>Schema Drift & Null Contamination:</b> Upstream microservices alter field requirements, causing essential dimensions (such as quantity or unit price) to arrive null, leading to silent drops or zero-multiplications in SQL aggregate joins.", styles["bullet"]))
-    story.append(Paragraph("• <b>Domain Range Violations:</b> Promotional bugs or return glitches inject negative prices or zero quantities, skewing average order value calculations while passing general numeric datatype checks.", styles["bullet"]))
-    story.append(Paragraph("• <b>Unchecked Control Totals:</b> Upstream filtering drops records, yet downstream pipelines process the subset without reconciling against expected ingestion row counts.", styles["bullet"]))
+    story.append(Paragraph("• <b>Ingestion Replay & Duplicate Records:</b> Upstream webhook retries or message queue replays generate duplicate sales or sensor events. Without uniqueness constraints, revenue inflates or machine runtime totals distort without database syntax errors.", styles["bullet"]))
+    story.append(Paragraph("• <b>Schema Drift & Null Contamination:</b> Upstream microservices alter field requirements, causing essential fields (unit price, temperature, machine ID) to arrive null, leading to silent drops in SQL aggregate joins.", styles["bullet"]))
+    story.append(Paragraph("• <b>Domain Range Violations:</b> Negative prices, negative sensor vibration, or impossible quality pass rates (&gt;100%) skew downstream averages while passing general numeric datatype checks.", styles["bullet"]))
+    story.append(Paragraph("• <b>Unchecked Control Totals:</b> Upstream filtering drops records, yet downstream pipelines process the subset without reconciling against expected ingestion counts.", styles["bullet"]))
     story.append(
         Paragraph(
-            "<b>The Cost of Unchecked Ingestion:</b> Because downstream systems assume clean feeds, corrupt rows "
-            "infiltrate data warehouses, skewing financial reporting, triggering erroneous automated inventory replenishments, "
-            "and poisoning customer attribution models weeks before human auditors notice discrepancies.",
+            "<b>The Cost of Silent Failures:</b> Because downstream systems assume clean feeds, corrupt rows infiltrate data "
+            "warehouses, skewing financial reporting, triggering erroneous automated inventory replenishments, or corrupting "
+            "industrial maintenance forecasting weeks before human auditors notice discrepancies.",
             styles["body"],
         )
     )
@@ -439,17 +426,17 @@ def build_pdf_report():
     flow_table_data = [
         [Paragraph("<b>Step</b>", styles["th"]), Paragraph("<b>Stage</b>", styles["th"]), Paragraph("<b>Engine Execution Description</b>", styles["th"])],
         [Paragraph("01", styles["td"]), Paragraph("Data Ingestion", styles["td"]), Paragraph("Parses CSV file with UTF-8/fallback encoding, validates column dimensions and mandatory headers.", styles["td"])],
-        [Paragraph("02", styles["td"]), Paragraph("Profiling", styles["td"]), Paragraph("Computes structural metadata: row/column counts, null distributions, numeric summaries, and schema compatibility.", styles["td"])],
-        [Paragraph("03", styles["td"]), Paragraph("Baseline Metrics", styles["td"]), Paragraph("Calculates clean pipeline metrics (revenue, transaction count, customer count) using exact Decimal arithmetic.", styles["td"])],
+        [Paragraph("02", styles["td"]), Paragraph("Domain Profiling", styles["td"]), Paragraph("Computes structural metadata: row/column counts, null distributions, numeric summaries, and evaluates domain compatibility.", styles["td"])],
+        [Paragraph("03", styles["td"]), Paragraph("Baseline Metrics", styles["td"]), Paragraph("Calculates clean domain metrics (revenue, orders, or IoT sensor readings/power) from pristine source data.", styles["td"])],
         [Paragraph("04", styles["td"]), Paragraph("Baseline Validation", styles["td"]), Paragraph("Executes active rule suite against pristine dataset to capture existing findings and fingerprints.", styles["td"])],
         [Paragraph("05", styles["td"]), Paragraph("Working Copy Isolation", styles["td"]), Paragraph("Creates independent deep copy (<code>df.copy(deep=True)</code>) to guarantee source dataset immutability.", styles["td"])],
-        [Paragraph("06", styles["td"]), Paragraph("Fault Injection", styles["td"]), Paragraph("Injects deterministic synthetic mutation (duplicate row, null value, negative price, dropped row).", styles["td"])],
-        [Paragraph("07", styles["td"]), Paragraph("Mutated Validation", styles["td"]), Paragraph("Runs validation rules against mutated copy; isolates newly introduced findings from baseline fingerprints.", styles["td"])],
+        [Paragraph("06", styles["td"]), Paragraph("Fault Injection", styles["td"]), Paragraph("Injects deterministic synthetic mutation (duplicate row/reading, null sensor, negative measurement, dropped row).", styles["td"])],
+        [Paragraph("07", styles["td"]), Paragraph("Mutated Validation", styles["td"]), Paragraph("Runs domain validation rules against mutated copy; isolates newly introduced findings from baseline fingerprints.", styles["td"])],
         [Paragraph("08", styles["td"]), Paragraph("Detection Matching", styles["td"]), Paragraph("Evaluates whether new findings explicitly correspond to injected fault type, target column, and target record.", styles["td"])],
-        [Paragraph("09", styles["td"]), Paragraph("Downstream Impact", styles["td"]), Paragraph("Quantifies delta between clean and corrupted metrics (e.g. net revenue error magnitude in INR/currency).", styles["td"])],
-        [Paragraph("10", styles["td"]), Paragraph("Rule Recommendation", styles["td"]), Paragraph("Synthesizes deterministic, explainable validation safeguard rule configurations to close identified escape gaps.", styles["td"])],
+        [Paragraph("09", styles["td"]), Paragraph("Downstream Impact", styles["td"]), Paragraph("Quantifies delta between clean and corrupted metrics (e.g., net revenue error in INR or distortion in units produced).", styles["td"])],
+        [Paragraph("10", styles["td"]), Paragraph("Rule Recommendation", styles["td"]), Paragraph("Synthesizes deterministic, explainable validation safeguard configurations to close identified escape gaps.", styles["td"])],
     ]
-    t_flow = Table(flow_table_data, colWidths=[28, 105, 371])
+    t_flow = Table(flow_table_data, colWidths=[35, 115, 354])
     t_flow.setStyle(
         TableStyle(
             [
@@ -457,21 +444,20 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4.2),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
     story.append(t_flow)
     story.append(Spacer(1, 8))
+
+    story.append(Paragraph("Core Differentiator: Adversarial Safeguard Verification", styles["h2"]))
     story.append(
-        make_callout(
-            "<b>The Mutation Testing Philosophy:</b> In software testing, a test suite is tested by mutating the source code "
-            "(e.g., flipping <code>&gt;</code> to <code>&lt;=</code>). If the test suite still passes, the mutation <i>survived</i>, "
-            "indicating a test gap. DataTripwire applies this exact logic to data pipelines: if corrupting data does not fail "
-            "validation, the safeguard suite is demonstrably inadequate.",
-            styles,
-            border_color=NAVY_PRIMARY,
-            bg_color=BG_LIGHT,
+        Paragraph(
+            "Unlike traditional monitoring tools that merely report whether data passes existing rules, DataTripwire "
+            "answers: <b>'If an upstream failure occurs, will our current validation rules catch it, or will it slip through unnoticed?'</b> "
+            "This empirical verification cycle empowers data engineers to harden pipelines before incidents impact business decisions.",
+            styles["body"],
         )
     )
     story.append(PageBreak())
@@ -482,43 +468,42 @@ def build_pdf_report():
     story.append(Paragraph("4. Practical Industry Use Cases", styles["h1"]))
     story.append(
         Paragraph(
-            "While DataTripwire's reference implementation utilizes e-commerce sales datasets, "
-            "its underlying crash-testing architecture directly addresses critical vulnerabilities across enterprise data pipelines:",
+            "DataTripwire addresses data reliability across diverse enterprise operational environments:",
             styles["body"],
         )
     )
 
     use_case_data = [
-        [Paragraph("<b>Domain</b>", styles["th"]), Paragraph("<b>Vulnerability Vector</b>", styles["th"]), Paragraph("<b>Downstream Business Risk</b>", styles["th"]), Paragraph("<b>DataTripwire Safeguard Evaluation</b>", styles["th"])],
+        [Paragraph("<b>Domain Vertical</b>", styles["th"]), Paragraph("<b>Synthetic Fault Vector</b>", styles["th"]), Paragraph("<b>Downstream Business & Operational Impact</b>", styles["th"]), Paragraph("<b>Evaluated Validation Safeguard</b>", styles["th"])],
         [
-            Paragraph("<b>E-Commerce & Retail</b>", styles["td"]),
-            Paragraph("Duplicate order ingestion via payment webhook retries.", styles["td"]),
-            Paragraph("Artificially inflated revenue ledgers, over-reported merchant payouts, taxation errors.", styles["td"]),
-            Paragraph("Verifies transaction ID uniqueness and control total reconciliation rules.", styles["td"]),
+            Paragraph("<b>E-Commerce & Retail Sales</b>", styles["td"]),
+            Paragraph("Duplicate order row injected (ORD-101 cloned via ingestion retry).", styles["td"]),
+            Paragraph("Net revenue falsely inflated (+₹800.00), overstating revenue ledgers and skewing inventory allocation.", styles["td"]),
+            Paragraph("Primary-key uniqueness check on <code>transaction_id</code>.", styles["td"]),
+        ],
+        [
+            Paragraph("<b>Manufacturing & Industrial IoT</b>", styles["td"]),
+            Paragraph("Duplicate sensor frame or negative vibration reading (-5.0 mm/s).", styles["td"]),
+            Paragraph("Distorted machine runtime totals, erroneous predictive maintenance alerts, corrupted overall yield stats.", styles["td"]),
+            Paragraph("Composite uniqueness check on <code>(machine_id, timestamp)</code> and non-negative physical bounds.", styles["td"]),
         ],
         [
             Paragraph("<b>FinTech & Banking</b>", styles["td"]),
-            Paragraph("Negative transaction amount injected via reversal glitch.", styles["td"]),
-            Paragraph("Distorted account balance calculations, erroneous risk threshold alerts.", styles["td"]),
-            Paragraph("Evaluates non-negative domain boundaries and debit/credit balance constraints.", styles["td"]),
+            Paragraph("Negative transaction amount or missing currency code.", styles["td"]),
+            Paragraph("Corrupted balance calculations, flawed ledger reconciliations, erroneous risk threshold alerts.", styles["td"]),
+            Paragraph("Non-negative domain boundaries and debit/credit balance constraints.", styles["td"]),
         ],
         [
             Paragraph("<b>Supply Chain & Logistics</b>", styles["td"]),
-            Paragraph("Missing shipment quantity in warehouse transfer events.", styles["td"]),
-            Paragraph("Silent inventory shrinkage, stockout forecasting failures, delayed reorders.", styles["td"]),
-            Paragraph("Tests NOT NULL constraints and positive integer quantity enforcement.", styles["td"]),
+            Paragraph("Missing transfer quantity in shipment warehouse events.", styles["td"]),
+            Paragraph("Silent inventory shrinkage, stockout forecasting failures, delayed reorder triggers.", styles["td"]),
+            Paragraph("NOT NULL constraints and positive integer quantity enforcement.", styles["td"]),
         ],
         [
-            Paragraph("<b>Machine Learning Pipelines</b>", styles["td"]),
+            Paragraph("<b>Machine Learning Feature Stores</b>", styles["td"]),
             Paragraph("Dropped rows during training feature extraction ETL.", styles["td"]),
-            Paragraph("Biased model weights, silent class distribution drift, degraded inference accuracy.", styles["td"]),
-            Paragraph("Validates row-count thresholds and expectation reconciliation gates.", styles["td"]),
-        ],
-        [
-            Paragraph("<b>Healthcare & Clinical</b>", styles["td"]),
-            Paragraph("Corrupted dosage or invalid observation timestamp.", styles["td"]),
-            Paragraph("Fatal dosing calculation errors, compromised clinical trial safety benchmarks.", styles["td"]),
-            Paragraph("Evaluates strict datetime format checks and positive non-zero range rules.", styles["td"]),
+            Paragraph("Biased model weights, silent class distribution drift, degraded inference accuracy in production.", styles["td"]),
+            Paragraph("Expected row count thresholds and control-count reconciliation gates.", styles["td"]),
         ],
     ]
     t_uc = Table(use_case_data, colWidths=[85, 115, 150, 154])
@@ -529,19 +514,18 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4.5),
+                ("PADDING", (0, 0), (-1, -1), 4.2),
             ]
         )
     )
     story.append(t_uc)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     story.append(Paragraph("Cross-Industry Commonality", styles["h2"]))
     story.append(
         Paragraph(
-            "Across each vertical, the failure pattern is identical: the database accepts the write, the ETL job "
-            "exits with status <code>SUCCESS</code>, but the analytical truth is corrupted. By running DataTripwire "
-            "prior to deploying new pipeline code, teams empirically prove that their data checks actually trigger "
-            "under synthetic stress, establishing audit-grade defensibility.",
+            "Across every vertical, the failure pattern is identical: the database accepts the write, the ETL job "
+            "exits with status <code>SUCCESS</code>, but analytical truth is compromised. By running DataTripwire "
+            "prior to deploying new pipeline code, teams empirically prove that their data checks trigger under stress.",
             styles["body"],
         )
     )
@@ -554,7 +538,8 @@ def build_pdf_report():
     story.append(
         Paragraph(
             "DataTripwire adheres to strict architectural separation between presentation, HTTP interface, "
-            "domain business logic, and local runtime storage:",
+            "domain business logic, and local runtime storage. The multi-domain upgrade introduces a modular "
+            "registry and strategy pattern:",
             styles["body"],
         )
     )
@@ -564,29 +549,30 @@ def build_pdf_report():
         "|                           <b>REACT 19 + TYPESCRIPT FRONTEND (Vite)</b>                       |<br/>"
         "|  +--------------------+  +--------------------+  +------------------+  +----------------+  |<br/>"
         "|  |   UploadView       |  |   ProfileView      |  |  ConfigureView   |  |  ResultsView   |  |<br/>"
-        "|  |   (CSV Ingestion)  |  |   (Data Profiling) |  |  (Mutation Lab)  |  |  (Forensics)   |  |<br/>"
+        "|  |   (CSV Ingestion)  |  | (Domain Selection) |  |  (Mutation Lab)  |  |  (Forensics)   |  |<br/>"
         "|  +--------------------+  +--------------------+  +------------------+  +----------------+  |<br/>"
-        "|               | ThemeContextCore (Daylight / After Hours) | PipelineIllustration (SVG)     |<br/>"
+        "|         | ThemeContextCore (Daylight / After Hours) | Multi-Domain PipelineIllustration     |<br/>"
         "+--------------------------------------------+--------------------------------------------+<br/>"
         "                                             | HTTP JSON / REST API (Port 8000)<br/>"
         "+--------------------------------------------v--------------------------------------------+<br/>"
         "|                              <b>FASTAPI BACKEND APPLICATION CORE</b>                        |<br/>"
         "|  +-----------------------------------------------------------------------------------+  |<br/>"
-        "|  | Endpoints: /health  |  /api/v1/datasets  |  /api/v1/evaluations  |  OpenAPI Schema |  |<br/>"
+        "|  | Routes: /health | /api/v1/domains | /api/v1/datasets | /api/v1/evaluations | OpenAPI   |  |<br/>"
         "|  +-----------------------------------------------------------------------------------+  |<br/>"
         "|                                            | Pydantic v2 Schema Validation               |<br/>"
         "|  +-----------------------------------------v-----------------------------------------+  |<br/>"
-        "|  |                               <b>DOMAIN SERVICES LAYER</b>                           |  |<br/>"
+        "|  |                               <b>DOMAIN REGISTRY LAYER</b>                              |  |<br/>"
+        "|  |  +------------------------------------------------------------------------------+ |  |<br/>"
+        "|  |  | DomainRegistry (Auto-detection & Manual Profile Selection)                     | |  |<br/>"
+        "|  |  | -> SalesDomainProfile (5 cols, Decimal revenue, 5 sales mutations)           | |  |<br/>"
+        "|  |  | -> ManufacturingDomainProfile (18 cols, telemetry metrics, 5 sensor mutators)  | |  |<br/>"
+        "|  |  | -> GeneralDomainProfile (Standard tabular profiling, mutations disabled)      | |  |<br/>"
+        "|  |  +------------------------------------------------------------------------------+ |  |<br/>"
+        "|  |                                            |                                       |  |<br/>"
         "|  |  +-------------------+  +-------------------+  +--------------------------------+ |  |<br/>"
-        "|  |  | Dataset Profiler  |  | Mutation Engine   |  | Validation Engine              | |  |<br/>"
-        "|  |  | (services/        |  | (services/        |  | (services/validators.py)        | |  |<br/>"
-        "|  |  |  profiler.py)     |  |  mutation_engine) |  | 7 configurable rule types      | |  |<br/>"
-        "|  |  +-------------------+  +-------------------+  +--------------------------------+ |  |<br/>"
-        "|  |            |                     |                             |                   |  |<br/>"
-        "|  |  +-------------------+  +-------------------+  +--------------------------------+ |  |<br/>"
-        "|  |  | Decimal Financial |  | Fingerprint-Based |  | Deterministic Rule             | |  |<br/>"
-        "|  |  | Metric Calculator |  | Evaluator         |  | Recommender                    | |  |<br/>"
-        "|  |  | (services/metrics)|  | (evaluator.py)    |  | (services/recommendations.py)  | |  |<br/>"
+        "|  |  | Dataset Profiler  |  | Mutation Engine   |  | Fingerprint Evaluator          | |  |<br/>"
+        "|  |  | (services/        |  | (services/        |  | (services/evaluator.py)        | |  |<br/>"
+        "|  |  |  profiler.py)     |  |  mutation_engine) |  | Fingerprint discrepancy match  | |  |<br/>"
         "|  |  +-------------------+  +-------------------+  +--------------------------------+ |  |<br/>"
         "+--+-----------------------------------------+-----------------------------------------+--+<br/>"
         "                                             |<br/>"
@@ -596,16 +582,16 @@ def build_pdf_report():
         "+-----------------------------------------------------------------------------------------+"
     )
     story.append(make_callout(arch_diagram, styles, border_color=NAVY_PRIMARY, bg_color=BG_LIGHT))
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
 
     story.append(Paragraph("Core Domain Contracts & Schema Definitions", styles["h2"]))
     contracts_data = [
         [Paragraph("<b>Domain Model</b>", styles["th"]), Paragraph("<b>Module Path</b>", styles["th"]), Paragraph("<b>Purpose & Key Fields</b>", styles["th"])],
-        [Paragraph("<code>MutationItem</code>", styles["code"]), Paragraph("<code>schemas.mutation</code>", styles["td"]), Paragraph("Defines synthetic fault: <code>mutation_type</code>, <code>target_record_id</code>, <code>target_column</code>, <code>params</code>.", styles["td"])],
-        [Paragraph("<code>ValidationRuleConfig</code>", styles["code"]), Paragraph("<code>schemas.validation</code>", styles["td"]), Paragraph("Defines rule check: <code>rule_type</code>, <code>target_column</code>, <code>enabled</code>, <code>parameters</code>.", styles["td"])],
-        [Paragraph("<code>ValidationFinding</code>", styles["code"]), Paragraph("<code>schemas.validation</code>", styles["td"]), Paragraph("Reports discrepancy: <code>rule_id</code>, <code>rule_type</code>, <code>column</code>, <code>affected_record_ids</code>.", styles["td"])],
-        [Paragraph("<code>EvaluationReport</code>", styles["code"]), Paragraph("<code>schemas.evaluation</code>", styles["td"]), Paragraph("Complete run summary: <code>mutation_score</code>, <code>metrics_impact</code>, <code>mutations[]</code>, <code>recommendations[]</code>.", styles["td"])],
-        [Paragraph("<code>MetricDiff</code>", styles["code"]), Paragraph("<code>schemas.metrics</code>", styles["td"]), Paragraph("Quantifies drift: <code>metric_name</code>, <code>baseline_value</code>, <code>mutated_value</code>, <code>diff_value</code>.", styles["td"])],
+        [Paragraph("<code>BaseDomainProfile</code>", styles["code"]), Paragraph("<code>domains.base</code>", styles["td"]), Paragraph("Abstract strategy contract for validation rules, mutations, metrics, and recommendations.", styles["td"])],
+        [Paragraph("<code>DomainRegistry</code>", styles["code"]), Paragraph("<code>domains.registry</code>", styles["td"]), Paragraph("Singleton registry resolving domain profiles from column headers or explicit requests.", styles["td"])],
+        [Paragraph("<code>MutationItem</code>", styles["code"]), Paragraph("<code>schemas.py</code>", styles["td"]), Paragraph("Defines synthetic fault: <code>mutation_type</code>, <code>target_record_id</code>, <code>target_column</code>, <code>value</code>.", styles["td"])],
+        [Paragraph("<code>ValidationRuleConfig</code>", styles["code"]), Paragraph("<code>schemas.py</code>", styles["td"]), Paragraph("Defines rule toggles for sales and manufacturing checkpoints.", styles["td"])],
+        [Paragraph("<code>EvaluationReport</code>", styles["code"]), Paragraph("<code>schemas.py</code>", styles["td"]), Paragraph("Complete run summary: <code>mutation_score</code>, <code>metric_deltas</code>, <code>evaluations[]</code>, <code>recommendations[]</code>.", styles["td"])],
     ]
     t_con = Table(contracts_data, colWidths=[120, 110, 274])
     t_con.setStyle(
@@ -615,7 +601,7 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
@@ -644,7 +630,7 @@ def build_pdf_report():
         ],
         [
             Paragraph("2. Baseline", styles["td"]),
-            Paragraph("Validation suite executed against <code>df_clean</code> to produce baseline findings <code>F_base</code>.", styles["td"]),
+            Paragraph("Domain validation suite executed against <code>df_clean</code> to produce baseline findings <code>F_base</code>.", styles["td"]),
             Paragraph("Generates set of stable string fingerprints: <code>{rule_id}::{type}::{col}::{records}</code>.", styles["td"]),
         ],
         [
@@ -674,8 +660,8 @@ def build_pdf_report():
         ],
         [
             Paragraph("8. Quantify", styles["td"]),
-            Paragraph("Computes business metrics on <code>df_work</code> vs clean baseline metrics.", styles["td"]),
-            Paragraph("Exact monetary diff calculation: <code>diff = mutated_val - baseline_val</code>.", styles["td"]),
+            Paragraph("Computes business/operational metrics on <code>df_work</code> vs clean baseline metrics.", styles["td"]),
+            Paragraph("Exact metric delta calculation: <code>delta = mutated_val - baseline_val</code>.", styles["td"]),
         ],
     ]
     t_lc = Table(lifecycle_data, colWidths=[55, 215, 234])
@@ -686,7 +672,7 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
@@ -705,8 +691,8 @@ def build_pdf_report():
     story.append(
         Paragraph(
             "<b>Deduplication Rationale:</b> Real-world datasets often arrive with preexisting quality anomalies. "
-            "If an incoming dataset already has a null email address, a synthetic null injection into an unrelated row "
-            "must not take credit for detecting the preexisting null. The fingerprint set difference ensures that "
+            "If an incoming dataset already has an invalid measurement, a synthetic injection into an unrelated row "
+            "must not take credit for detecting the preexisting defect. The fingerprint set difference ensures that "
             "only findings freshly generated by the synthetic mutation are credited.",
             styles["body"],
         )
@@ -719,46 +705,22 @@ def build_pdf_report():
     story.append(Paragraph("7. Synthetic Mutation Engine & Operators", styles["h1"]))
     story.append(
         Paragraph(
-            "DataTripwire implements five concrete synthetic mutation operators representing realistic data pipeline failures. "
-            "Each mutation operates on an isolated deep copy and captures structured injection telemetry:",
+            "DataTripwire implements domain-specific synthetic mutation operators representing realistic pipeline failures. "
+            "Each operator modifies an isolated in-memory replica deterministically:",
             styles["body"],
         )
     )
 
+    story.append(Paragraph("E-Commerce Sales Domain Mutations", styles["h2"]))
     mutation_data = [
         [Paragraph("<b>Mutation Class</b>", styles["th"]), Paragraph("<b>Target</b>", styles["th"]), Paragraph("<b>Synthetic Operation</b>", styles["th"]), Paragraph("<b>Expected Rule Safeguard</b>", styles["th"])],
-        [
-            Paragraph("<code>duplicate_row</code>", styles["code"]),
-            Paragraph("Transaction ID", styles["td"]),
-            Paragraph("Clones entire row (e.g. ORD-101) and appends to DataFrame. Simulates duplicate ingestion replay.", styles["td"]),
-            Paragraph("<code>TRANSACTION_ID_DUPLICATE</code> (Unique constraint on transaction_id)", styles["td"]),
-        ],
-        [
-            Paragraph("<code>missing_required_value</code>", styles["code"]),
-            Paragraph("Specified Column", styles["td"]),
-            Paragraph("Replaces valid cell with <code>np.nan</code>. Simulates upstream missing attribute drift.", styles["td"]),
-            Paragraph("<code>REQUIRED_VALUE_MISSING</code> (NOT NULL check on required fields)", styles["td"]),
-        ],
-        [
-            Paragraph("<code>invalid_quantity</code>", styles["code"]),
-            Paragraph("quantity column", styles["td"]),
-            Paragraph("Sets quantity to 0 or negative integer (-1). Tests numerical lower bounds.", styles["td"]),
-            Paragraph("<code>QUANTITY_NOT_POSITIVE</code> (Strict positive quantity constraint)", styles["td"]),
-        ],
-        [
-            Paragraph("<code>invalid_unit_price</code>", styles["code"]),
-            Paragraph("unit_price column", styles["td"]),
-            Paragraph("Sets price to negative float (-100.00). Tests monetary non-negativity.", styles["td"]),
-            Paragraph("<code>UNIT_PRICE_NEGATIVE</code> (Non-negative unit price check)", styles["td"]),
-        ],
-        [
-            Paragraph("<code>dropped_row</code>", styles["code"]),
-            Paragraph("Row Index", styles["td"]),
-            Paragraph("Deletes transaction from DataFrame. Tests record count reconciliation.", styles["td"]),
-            Paragraph("<code>EXPECTED_ROW_COUNT_MISMATCH</code> (Reconciliation against control count)", styles["td"]),
-        ],
+        [Paragraph("<code>duplicate_row</code>", styles["code"]), Paragraph("Transaction ID", styles["td"]), Paragraph("Clones entire row (ORD-101) and appends to DataFrame. Simulates ingestion retry replay.", styles["td"]), Paragraph("<code>check_unique_transaction_id</code>", styles["td"])],
+        [Paragraph("<code>missing_required_value</code>", styles["code"]), Paragraph("Target Column", styles["td"]), Paragraph("Replaces cell with <code>np.nan</code>. Simulates upstream missing attribute drift.", styles["td"]), Paragraph("<code>check_required_values</code>", styles["td"])],
+        [Paragraph("<code>invalid_quantity</code>", styles["code"]), Paragraph("quantity", styles["td"]), Paragraph("Sets quantity to 0 or negative integer (-1). Tests numerical lower bounds.", styles["td"]), Paragraph("<code>check_quantity_positive</code>", styles["td"])],
+        [Paragraph("<code>invalid_unit_price</code>", styles["code"]), Paragraph("unit_price", styles["td"]), Paragraph("Sets price to negative float (-100.00). Tests monetary non-negativity.", styles["td"]), Paragraph("<code>check_unit_price_nonnegative</code>", styles["td"])],
+        [Paragraph("<code>dropped_row</code>", styles["code"]), Paragraph("Row Index", styles["td"]), Paragraph("Deletes transaction from DataFrame. Tests record count reconciliation.", styles["td"]), Paragraph("<code>check_expected_row_count</code>", styles["td"])],
     ]
-    t_mut = Table(mutation_data, colWidths=[105, 80, 175, 144])
+    t_mut = Table(mutation_data, colWidths=[110, 80, 175, 139])
     t_mut.setStyle(
         TableStyle(
             [
@@ -766,34 +728,35 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4.2),
+                ("PADDING", (0, 0), (-1, -1), 3.5),
             ]
         )
     )
     story.append(t_mut)
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
 
-    story.append(Paragraph("Example Synthetic Mutation JSON Payload", styles["h2"]))
-    json_mut = (
-        "{\n"
-        "  \"mutation_type\": \"duplicate_row\",\n"
-        "  \"target_record_id\": \"ORD-101\",\n"
-        "  \"target_column\": \"transaction_id\",\n"
-        "  \"params\": {\"reproducibility_seed\": 42, \"append_position\": \"tail\"}\n"
-        "}"
-    )
-    story.append(make_callout(f"<pre>{json_mut}</pre>", styles, border_color=BORDER_LIGHT, bg_color=BG_LIGHT))
-    story.append(Spacer(1, 4))
-    story.append(Paragraph("Handling Failed or Inapplicable Mutations", styles["h2"]))
-    story.append(
-        Paragraph(
-            "If a requested mutation cannot apply (e.g., target record ID does not exist in the dataset, or the specified "
-            "column is missing), the mutation engine records <code>applied = False</code>, captures an informative error message, "
-            "and sets <code>detected = None</code>. Crucially, <b>unapplied mutations are excluded from the mutation score denominator</b>, "
-            "preventing artificial inflation or deflation of the detection ratio.",
-            styles["body"],
+    story.append(Paragraph("Manufacturing / Industrial IoT Domain Mutations", styles["h2"]))
+    mfg_mutation_data = [
+        [Paragraph("<b>Mutation Class</b>", styles["th"]), Paragraph("<b>Target</b>", styles["th"]), Paragraph("<b>Synthetic Operation</b>", styles["th"]), Paragraph("<b>Expected Rule Safeguard</b>", styles["th"])],
+        [Paragraph("<code>duplicate_sensor_reading</code>", styles["code"]), Paragraph("Reading ID", styles["td"]), Paragraph("Clones entire telemetry frame (e.g. RDG-01-0001). Simulates sensor network replay.", styles["td"]), Paragraph("<code>check_machine_timestamp_unique</code>", styles["td"])],
+        [Paragraph("<code>missing_sensor_value</code>", styles["code"]), Paragraph("Sensor Field", styles["td"]), Paragraph("Replaces sensor reading (e.g. temperature_c) with null. Tests telemetry non-null rules.", styles["td"]), Paragraph("<code>check_required_values</code>", styles["td"])],
+        [Paragraph("<code>invalid_sensor_value</code>", styles["code"]), Paragraph("Sensor Field", styles["td"]), Paragraph("Sets measurement to negative or out-of-bounds value (e.g. vibration: -5.0 mm/s).", styles["td"]), Paragraph("<code>check_non_negative_measurements</code>", styles["td"])],
+        [Paragraph("<code>dropped_sensor_reading</code>", styles["code"]), Paragraph("Reading ID", styles["td"]), Paragraph("Deletes sensor reading from working DataFrame. Tests stream reconciliation.", styles["td"]), Paragraph("<code>check_expected_record_count</code>", styles["td"])],
+        [Paragraph("<code>invalid_production_value</code>", styles["code"]), Paragraph("Units/Defects", styles["td"]), Paragraph("Sets defect_count > units_produced (e.g. 50 defects on 10 units).", styles["td"]), Paragraph("<code>check_production_consistency</code>", styles["td"])],
+    ]
+    t_mfg_mut = Table(mfg_mutation_data, colWidths=[110, 80, 175, 139])
+    t_mfg_mut.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), NAVY_PRIMARY),
+                ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
+                ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
+                ("PADDING", (0, 0), (-1, -1), 3.5),
+            ]
         )
     )
+    story.append(t_mfg_mut)
     story.append(PageBreak())
 
     # =========================================================================
@@ -802,83 +765,57 @@ def build_pdf_report():
     story.append(Paragraph("8. Validation Engine & Fault Detection Logic", styles["h1"]))
     story.append(
         Paragraph(
-            "DataTripwire provides seven built-in validation rules designed to enforce structural, domain, and relational "
-            "integrity across transactional pipelines:",
+            "DataTripwire provides configurable validation rules across transactional sales and industrial telemetry pipelines:",
             styles["body"],
         )
     )
 
-    val_rules_data = [
-        [Paragraph("<b>Rule Code</b>", styles["th"]), Paragraph("<b>Rule Name & Type</b>", styles["th"]), Paragraph("<b>Target & Parameters</b>", styles["th"]), Paragraph("<b>Detection Condition</b>", styles["th"])],
-        [
-            Paragraph("<code>REQ_001</code>", styles["code"]),
-            Paragraph("Required Value Missing<br/><code>REQUIRED_VALUE_MISSING</code>", styles["td"]),
-            Paragraph("Any designated column<br/>(e.g., customer_id, unit_price)", styles["td"]),
-            Paragraph("Triggers finding if <code>pd.isna(val)</code> or empty whitespace.", styles["td"]),
-        ],
-        [
-            Paragraph("<code>QTY_001</code>", styles["code"]),
-            Paragraph("Positive Quantity<br/><code>QUANTITY_NOT_POSITIVE</code>", styles["td"]),
-            Paragraph("<code>quantity</code><br/>Min: 1", styles["td"]),
-            Paragraph("Triggers finding if <code>quantity &lt;= 0</code> or non-integer.", styles["td"]),
-        ],
-        [
-            Paragraph("<code>PRC_001</code>", styles["code"]),
-            Paragraph("Non-Negative Unit Price<br/><code>UNIT_PRICE_NEGATIVE</code>", styles["td"]),
-            Paragraph("<code>unit_price</code><br/>Min: 0.00", styles["td"]),
-            Paragraph("Triggers finding if <code>unit_price &lt; 0.00</code>.", styles["td"]),
-        ],
-        [
-            Paragraph("<code>UNIQ_001</code>", styles["code"]),
-            Paragraph("Transaction Uniqueness<br/><code>TRANSACTION_ID_DUPLICATE</code>", styles["td"]),
-            Paragraph("<code>transaction_id</code><br/>Scope: Entire table", styles["td"]),
-            Paragraph("Triggers finding if duplicates exist: <code>df.duplicated(subset=['transaction_id'])</code>.", styles["td"]),
-        ],
-        [
-            Paragraph("<code>ROW_001</code>", styles["code"]),
-            Paragraph("Expected Row Count<br/><code>EXPECTED_ROW_COUNT_MISMATCH</code>", styles["td"]),
-            Paragraph("Table-level<br/><code>expected_count</code>", styles["td"]),
-            Paragraph("Triggers finding if <code>len(df) != expected_count</code>.", styles["td"]),
-        ],
-        [
-            Paragraph("<code>DATE_001</code>", styles["code"]),
-            Paragraph("Valid Date Format<br/><code>DATE_FORMAT_INVALID</code>", styles["td"]),
-            Paragraph("<code>transaction_date</code><br/>Format: YYYY-MM-DD", styles["td"]),
-            Paragraph("Triggers finding if date string fails strict ISO parsing.", styles["td"]),
-        ],
-        [
-            Paragraph("<code>FLD_001</code>", styles["code"]),
-            Paragraph("Allowed Categorical Values<br/><code>UNEXPECTED_FIELD_VALUE</code>", styles["td"]),
-            Paragraph("Categorical columns<br/><code>allowed_values[]</code>", styles["td"]),
-            Paragraph("Triggers finding if value not in enumerated set.", styles["td"]),
-        ],
+    story.append(Paragraph("Manufacturing & Industrial IoT Validation Rules", styles["h2"]))
+    mfg_val_rules = [
+        [Paragraph("<b>Rule Code</b>", styles["th"]), Paragraph("<b>Rule Name & Type</b>", styles["th"]), Paragraph("<b>Target Fields</b>", styles["th"]), Paragraph("<b>Detection & Invariant Condition</b>", styles["th"])],
+        [Paragraph("<code>RULE_MFG_COMPOSITE_UNIQUE</code>", styles["code"]), Paragraph("Machine & Timestamp Unique", styles["td"]), Paragraph("<code>machine_id, timestamp</code>", styles["td"]), Paragraph("Flags duplicate <code>(machine_id, timestamp)</code> pairs (key demo safeguard).", styles["td"])],
+        [Paragraph("<code>RULE_MFG_READING_ID_UNIQUE</code>", styles["code"]), Paragraph("Reading ID Uniqueness", styles["td"]), Paragraph("<code>reading_id</code>", styles["td"]), Paragraph("Flags duplicate <code>reading_id</code> values across sensor stream.", styles["td"])],
+        [Paragraph("<code>RULE_MFG_NON_NEGATIVE</code>", styles["code"]), Paragraph("Non-Negative Measurements", styles["td"]), Paragraph("pressure, vibration, current, power", styles["td"]), Paragraph("Enforces physical values &ge; 0 (detects sensor drift or sign errors).", styles["td"])],
+        [Paragraph("<code>RULE_MFG_PROD_CONSISTENCY</code>", styles["code"]), Paragraph("Production Consistency", styles["td"]), Paragraph("<code>units_produced, defect_count</code>", styles["td"]), Paragraph("Verifies <code>defect_count &le; units_produced</code>; handles zero production.", styles["td"])],
+        [Paragraph("<code>RULE_MFG_TEMP_BOUNDS</code>", styles["code"]), Paragraph("Operating Temperature Limits", styles["td"]), Paragraph("<code>temperature_c</code>", styles["td"]), Paragraph("Checks operating temperature stays within configurable range [40°C - 95°C].", styles["td"])],
+        [Paragraph("<code>RULE_MFG_PASS_RATE_RANGE</code>", styles["code"]), Paragraph("Quality Pass Rate Range", styles["td"]), Paragraph("<code>quality_pass_rate_pct</code>", styles["td"]), Paragraph("Enforces yield percentage is strictly within [0.0, 100.0%].", styles["td"])],
     ]
-    t_val = Table(val_rules_data, colWidths=[65, 140, 130, 169])
-    t_val.setStyle(
+    t_mfg_val = Table(mfg_val_rules, colWidths=[110, 115, 110, 169])
+    t_mfg_val.setStyle(
         TableStyle(
             [
                 ("BACKGROUND", (0, 0), (-1, 0), NAVY_PRIMARY),
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 3.8),
+                ("PADDING", (0, 0), (-1, -1), 3.5),
             ]
         )
     )
-    story.append(t_val)
-    story.append(Spacer(1, 8))
+    story.append(t_mfg_val)
+    story.append(Spacer(1, 6))
 
-    story.append(Paragraph("Detection Verification Criteria (Multi-Point Matching)", styles["h2"]))
-    story.append(
-        Paragraph(
-            "To prevent false detection credit, the evaluation engine enforces <b>three-point matching</b> between the "
-            "synthetic fault and the isolated candidate findings:<br/>"
-            "1. <b>Rule Code Equivalence:</b> The finding's rule code must match the mutation's anticipated rule type.<br/>"
-            "2. <b>Column Dimension Match:</b> The finding's affected column must match the mutated column.<br/>"
-            "3. <b>Record Identifier Containment:</b> The finding's affected record IDs must include the injected row's ID.",
-            styles["body"],
+    story.append(Paragraph("E-Commerce Sales Validation Rules", styles["h2"]))
+    sales_val_rules = [
+        [Paragraph("<b>Rule Code</b>", styles["th"]), Paragraph("<b>Rule Name & Type</b>", styles["th"]), Paragraph("<b>Target Fields</b>", styles["th"]), Paragraph("<b>Detection & Invariant Condition</b>", styles["th"])],
+        [Paragraph("<code>RULE_UNIQUE_TRANSACTION_ID</code>", styles["code"]), Paragraph("Transaction Uniqueness", styles["td"]), Paragraph("<code>transaction_id</code>", styles["td"]), Paragraph("Flags duplicate transactions; disabled in baseline to demonstrate escape.", styles["td"])],
+        [Paragraph("<code>RULE_QUANTITY_POSITIVE</code>", styles["code"]), Paragraph("Positive Quantity", styles["td"]), Paragraph("<code>quantity</code>", styles["td"]), Paragraph("Enforces <code>quantity &gt; 0</code> (detects cancellations entered as sales).", styles["td"])],
+        [Paragraph("<code>RULE_UNIT_PRICE_NONNEGATIVE</code>", styles["code"]), Paragraph("Non-Negative Price", styles["td"]), Paragraph("<code>unit_price</code>", styles["td"]), Paragraph("Enforces <code>unit_price &ge; 0.00</code> (detects negative promotional glitches).", styles["td"])],
+        [Paragraph("<code>RULE_REQUIRED_VALUES</code>", styles["code"]), Paragraph("Required Non-Null", styles["td"]), Paragraph("Essential sales columns", styles["td"]), Paragraph("Flags missing values or whitespace in mandatory dimensions.", styles["td"])],
+    ]
+    t_sales_val = Table(sales_val_rules, colWidths=[110, 115, 110, 169])
+    t_sales_val.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), NAVY_PRIMARY),
+                ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
+                ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
+                ("PADDING", (0, 0), (-1, -1), 3.5),
+            ]
         )
     )
+    story.append(t_sales_val)
     story.append(PageBreak())
 
     # =========================================================================
@@ -887,39 +824,35 @@ def build_pdf_report():
     story.append(Paragraph("9. Business Metrics & Mutation Scoring Formulation", styles["h1"]))
     story.append(
         Paragraph(
-            "DataTripwire quantifies the real downstream financial impact caused when data mutations escape validation checkpoints. "
-            "All monetary calculations utilize Python's <code>Decimal</code> module to prevent floating-point representation drift.",
+            "DataTripwire calculates real metrics from uploaded datasets rather than rendering hardcoded or synthetic dummy outputs. "
+            "Metric calculations dynamically adapt to the active domain:",
             styles["body"],
         )
     )
 
-    story.append(Paragraph("Exact Mathematical Formulations", styles["h2"]))
+    story.append(Paragraph("Domain Metric Formulations", styles["h2"]))
     math_box = (
-        "<b>1. Total Net Revenue:</b><br/>"
-        "   <code>Revenue = SUM( Decimal(quantity_i) * Decimal(unit_price_i) )</code> quantized to <code>Decimal('0.01')</code><br/><br/>"
-        "<b>2. Average Order Value (AOV):</b><br/>"
-        "   <code>AOV = Revenue / Decimal(Transaction Count)</code> (handles division by zero gracefully)<br/><br/>"
-        "<b>3. Absolute & Relative Metric Drift:</b><br/>"
-        "   <code>Absolute Diff = Mutated Metric - Baseline Metric</code><br/>"
-        "   <code>Relative Diff (%) = (Absolute Diff / Baseline Metric) * 100</code> (if baseline != 0)<br/><br/>"
-        "<b>4. Mutation Score Formulation:</b><br/>"
+        "<b>1. E-Commerce Sales Domain:</b><br/>"
+        "   • <code>Revenue = SUM( Decimal(quantity_i) * Decimal(unit_price_i) )</code> quantized to <code>Decimal('0.01')</code><br/>"
+        "   • <code>AOV = Revenue / Decimal(Transaction Count)</code> (handles zero transactions safely)<br/><br/>"
+        "<b>2. Manufacturing & Industrial IoT Domain:</b><br/>"
+        "   • <code>Total Readings</code>, <code>Unique Machines</code>, <code>Unique Facilities</code><br/>"
+        "   • <code>Total Production Units = SUM(units_produced)</code> · <code>Total Defects = SUM(defect_count)</code><br/>"
+        "   • <code>Total Energy (kWh) = SUM(energy_kwh_20min)</code> across distinct reporting intervals<br/>"
+        "   • <code>Average Operating Temperature (°C)</code>, <code>Max Temperature</code>, <code>Average Vibration (mm/s)</code><br/>"
+        "   • <code>Quality Pass Rate (%) = MEAN(quality_pass_rate_pct)</code><br/><br/>"
+        "<b>3. Mutation Scoring Formulation:</b><br/>"
         "   <code>Mutation Score (%) = (Detected Eligible Mutations / Total Eligible Applied Mutations) * 100</code>"
     )
     story.append(make_callout(math_box, styles, border_color=NAVY_PRIMARY, bg_color=BG_LIGHT))
     story.append(Spacer(1, 8))
 
-    story.append(Paragraph("Precision & Integrity Guarantees", styles["h2"]))
-    story.append(Paragraph("• <b>Floating-Point Hazard:</b> Standard IEEE 754 floats introduce rounding errors (e.g., <code>0.1 + 0.2 = 0.30000000000000004</code>). In financial reconciliation, these microscopic errors trigger false drift alerts. DataTripwire guarantees exact currency precision with <code>ROUND_HALF_UP</code>.", styles["bullet"]))
-    story.append(Paragraph("• <b>Zero-Denominator Rule:</b> When zero eligible mutations are applied, the mutation score evaluates to <code>None</code> (rendered as 'N/A' in the UI). The system never invents a false 100% or 0% score.", styles["bullet"]))
-    story.append(Paragraph("• <b>Survivor Classification:</b> Any mutation where <code>applied = True</code> and <code>detected = False</code> is explicitly flagged as a <b>Surviving Mutation</b>, triggering immediate safeguard recommendation synthesis.", styles["bullet"]))
-    story.append(Spacer(1, 8))
-
     story.append(Paragraph("Scoring Classification Summary Table", styles["h2"]))
     score_table_data = [
         [Paragraph("<b>Status Category</b>", styles["th"]), Paragraph("<b>Engine Condition</b>", styles["th"]), Paragraph("<b>Score Effect</b>", styles["th"]), Paragraph("<b>System Action</b>", styles["th"])],
-        [Paragraph("<b>Detected</b>", styles["td"]), Paragraph("<code>applied=True, detected=True</code>", styles["td"]), Paragraph("Increments Numerator & Denominator", styles["td"]), Paragraph("Safeguard validated; no recommendation needed.", styles["td"])],
+        [Paragraph("<b>Detected</b>", styles["td"]), Paragraph("<code>applied=True, detected=True</code>", styles["td"]), Paragraph("Increments Numerator & Denominator", styles["td"]), Paragraph("Safeguard validated; metrics protected.", styles["td"])],
         [Paragraph("<b>Surviving</b>", styles["td"]), Paragraph("<code>applied=True, detected=False</code>", styles["td"]), Paragraph("Increments Denominator ONLY", styles["td"]), Paragraph("<b>Vulnerability flagged; synthesizes rule recommendation.</b>", styles["td"])],
-        [Paragraph("<b>Unapplied</b>", styles["td"]), Paragraph("<code>applied=False</code>", styles["td"]), Paragraph("<b>Excluded</b> from Score", styles["td"]), Paragraph("Logged as error; does not distort score.", styles["td"])],
+        [Paragraph("<b>Unapplied</b>", styles["td"]), Paragraph("<code>applied=False</code>", styles["td"]), Paragraph("<b>Excluded</b> from Score", styles["td"]), Paragraph("Logged as error; does not distort score ratio.", styles["td"])],
     ]
     t_score = Table(score_table_data, colWidths=[90, 130, 120, 164])
     t_score.setStyle(
@@ -949,7 +882,7 @@ def build_pdf_report():
     )
 
     api_data = [
-        [Paragraph("<b>Method & Path</b>", styles["th"]), Paragraph("<b>Purpose</b>", styles["th"]), Paragraph("<b>Request Body / Params</b>", styles["th"]), Paragraph("<b>Success Response</b>", styles["th"])],
+        [Paragraph("<b>Method & Path</b>", styles["th"]), Paragraph("<b>Purpose</b>", styles["th"]), Paragraph("<b>Request / Params</b>", styles["th"]), Paragraph("<b>Success Response</b>", styles["th"])],
         [
             Paragraph("<code>GET /health</code><br/><code>GET /api/v1/health</code>", styles["code"]),
             Paragraph("Service readiness health check.", styles["td"]),
@@ -957,46 +890,40 @@ def build_pdf_report():
             Paragraph("<code>200 OK</code> · HealthResponse (status: 'ok', version: '0.1.0')", styles["td"]),
         ],
         [
-            Paragraph("<code>POST /api/v1/datasets/sample</code>", styles["code"]),
-            Paragraph("Loads & profiles bundled 15-tx sales dataset.", styles["td"]),
+            Paragraph("<code>GET /api/v1/domains</code>", styles["code"]),
+            Paragraph("Lists all registered domain profiles.", styles["td"]),
             Paragraph("None", styles["td"]),
-            Paragraph("<code>201 Created</code> · DatasetResponse with DatasetProfile", styles["td"]),
+            Paragraph("<code>200 OK</code> · List[DomainMetadata] (sales, manufacturing, general)", styles["td"]),
         ],
         [
-            Paragraph("<code>POST /api/v1/datasets</code>", styles["code"]),
-            Paragraph("Uploads & profiles custom CSV dataset.", styles["td"]),
-            Paragraph("Multipart form: <code>file</code> (.csv)", styles["td"]),
+            Paragraph("<code>POST /api/v1/datasets/sample</code>", styles["code"]),
+            Paragraph("Loads bundled 15-record sales dataset.", styles["td"]),
+            Paragraph("None", styles["td"]),
             Paragraph("<code>201 Created</code> · DatasetResponse", styles["td"]),
         ],
         [
-            Paragraph("<code>GET /api/v1/datasets</code>", styles["code"]),
-            Paragraph("Lists all persisted datasets.", styles["td"]),
+            Paragraph("<code>POST /api/v1/datasets/sample-manufacturing</code>", styles["code"]),
+            Paragraph("Loads bundled 20-record IoT dataset.", styles["td"]),
             Paragraph("None", styles["td"]),
-            Paragraph("<code>200 OK</code> · List[DatasetResponse]", styles["td"]),
+            Paragraph("<code>201 Created</code> · DatasetResponse (is_manufacturing_compatible: true)", styles["td"]),
         ],
         [
-            Paragraph("<code>GET /api/v1/datasets/{id}</code>", styles["code"]),
-            Paragraph("Retrieves dataset metadata & profile.", styles["td"]),
-            Paragraph("Path: <code>dataset_id</code>", styles["td"]),
-            Paragraph("<code>200 OK</code> · DatasetResponse (404 if missing)", styles["td"]),
+            Paragraph("<code>POST /api/v1/datasets</code>", styles["code"]),
+            Paragraph("Uploads & profiles arbitrary CSV dataset.", styles["td"]),
+            Paragraph("Multipart form: <code>file</code> (.csv)", styles["td"]),
+            Paragraph("<code>201 Created</code> · DatasetResponse with detected_domain", styles["td"]),
         ],
         [
-            Paragraph("<code>GET /api/v1/datasets/{id}/profile</code>", styles["code"]),
-            Paragraph("Inspects structural profile metrics.", styles["td"]),
+            Paragraph("<code>GET /api/v1/datasets/{id}/domains</code>", styles["code"]),
+            Paragraph("Evaluates dataset domain compatibility matrix.", styles["td"]),
             Paragraph("Path: <code>dataset_id</code>", styles["td"]),
-            Paragraph("<code>200 OK</code> · DatasetProfile", styles["td"]),
+            Paragraph("<code>200 OK</code> · DomainCompatibilityResponse", styles["td"]),
         ],
         [
             Paragraph("<code>POST /api/v1/datasets/{id}/evaluations</code>", styles["code"]),
-            Paragraph("Executes mutation test batch against dataset.", styles["td"]),
-            Paragraph("JSON: <code>mutations[]</code>, <code>rules{}</code>", styles["td"]),
-            Paragraph("<code>201 Created</code> · EvaluationReport", styles["td"]),
-        ],
-        [
-            Paragraph("<code>GET /api/v1/evaluations/{id}</code>", styles["code"]),
-            Paragraph("Retrieves persisted evaluation report.", styles["td"]),
-            Paragraph("Path: <code>evaluation_id</code>", styles["td"]),
-            Paragraph("<code>200 OK</code> · EvaluationReport (404 if missing)", styles["td"]),
+            Paragraph("Executes domain-aware mutation testing batch.", styles["td"]),
+            Paragraph("JSON: <code>domain</code>, <code>mutations[]</code>, <code>rules{}</code>", styles["td"]),
+            Paragraph("<code>201 Created</code> · EvaluationReport with domain metrics", styles["td"]),
         ],
     ]
     t_api = Table(api_data, colWidths=[115, 105, 120, 164])
@@ -1007,22 +934,23 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
     story.append(t_api)
     story.append(Spacer(1, 8))
 
-    story.append(Paragraph("Sample Evaluation Request Payload", styles["h2"]))
+    story.append(Paragraph("Multi-Domain Evaluation Request Payload", styles["h2"]))
     req_json = (
-        "POST /api/v1/datasets/ds_sales_sample/evaluations<br/>"
+        "POST /api/v1/datasets/{id}/evaluations<br/>"
         "{\n"
+        "  \"domain\": \"manufacturing\",\n"
         "  \"mutations\": [\n"
-        "    {\"mutation_type\": \"duplicate_row\", \"target_record_id\": \"ORD-101\", \"target_column\": \"transaction_id\"}\n"
+        "    {\"mutation_type\": \"duplicate_sensor_reading\", \"target_record_id\": \"RDG-01-0001\"}\n"
         "  ],\n"
         "  \"rules\": {\n"
-        "    \"check_uniqueness\": false, \"check_positive_quantity\": true, \"check_non_negative_price\": true\n"
+        "    \"check_machine_timestamp_unique\": false, \"check_non_negative_measurements\": true\n"
         "  }\n"
         "}"
     )
@@ -1036,15 +964,15 @@ def build_pdf_report():
     story.append(
         Paragraph(
             "The DataTripwire user interface was engineered to evoke a sophisticated developer tools cockpit—<b>'The Data Reliability Lab'</b>. "
-            "Built with React 19, TypeScript, and Vite, the UI adheres to rigorous design-system tokens:",
+            "Built with React 19, TypeScript, and Vite, the UI adheres to rigorous design-system tokens and adapts dynamically across domains:",
             styles["body"],
         )
     )
 
     story.append(Paragraph("Four-Stage Workflow Navigation", styles["h2"]))
-    story.append(Paragraph("1. <b>01 Ingest:</b> Drag-and-drop CSV ingestion zone with instant format validation or one-click sample dataset loading.", styles["bullet"]))
-    story.append(Paragraph("2. <b>02 Profile:</b> Structural column breakdown, null count distributions, datatype inferences, and baseline metrics.", styles["bullet"]))
-    story.append(Paragraph("3. <b>03 Mutation Lab:</b> Adversarial sandbox allowing users to configure synthetic fault batches and toggle active validation safeguards.", styles["bullet"]))
+    story.append(Paragraph("1. <b>01 Ingest:</b> Drag-and-drop CSV ingestion zone with instant format validation, plus instant demo buttons for Retail Sales and Industrial IoT.", styles["bullet"]))
+    story.append(Paragraph("2. <b>02 Profile:</b> Structural column breakdown, null counts, numeric summaries, and dynamic domain selector pills (Sales, Manufacturing, General).", styles["bullet"]))
+    story.append(Paragraph("3. <b>03 Mutation Lab:</b> Domain-aware fault synthesizer rendering relevant mutation types and safeguards (with key demo pivot switches).", styles["bullet"]))
     story.append(Paragraph("4. <b>04 Investigation:</b> Forensic results cockpit displaying mutation scores, metric error deltas, surviving fault telemetry, and one-click safeguard fixes.", styles["bullet"]))
     story.append(Spacer(1, 6))
 
@@ -1072,12 +1000,12 @@ def build_pdf_report():
     story.append(t_th)
     story.append(Spacer(1, 8))
 
-    story.append(Paragraph("Interactive SVG Pipeline Visualization", styles["h2"]))
+    story.append(Paragraph("Domain-Adaptive SVG Pipeline Visualization", styles["h2"]))
     story.append(
         Paragraph(
-            "The header features a custom interactive SVG pipeline visualizer (<code>PipelineIllustration.tsx</code>) "
-            "rendering real-time pipeline topology: Raw Input Ingestion &rarr; Mutation Crash Zone &rarr; Validation Gate &rarr; "
-            "Downstream Protected Ledger. Nodes glow dynamically based on current evaluation state.",
+            "The top header features a custom interactive SVG pipeline visualizer (<code>PipelineIllustration.tsx</code>) "
+            "rendering real-time pipeline topology. When the manufacturing domain is active, the visualization renders "
+            "industrial telemetry streams (<code>Raw Telemetry Input &rarr; Sensor Mutation Crash Zone &rarr; Validation Gate &rarr; Protected Telemetry Output</code>).",
             styles["body"],
         )
     )
@@ -1099,7 +1027,7 @@ def build_pdf_report():
     story.append(
         Paragraph(
             "Double-clicking <code>start_datatripwire.bat</code> from Windows File Explorer invokes the startup system. "
-            "The batch file determines the repository root dynamically, verifies Python 3.11+ and Node.js 18+ in PATH, "
+            "The batch file determines the repository root dynamically, verifies Python and Node.js in PATH, "
             "and passes control to the Python supervisor orchestrator (<code>scripts/dev.py</code>).",
             styles["body"],
         )
@@ -1132,8 +1060,8 @@ def build_pdf_report():
     env_data = [
         [Paragraph("<b>Variable</b>", styles["th"]), Paragraph("<b>Default Value</b>", styles["th"]), Paragraph("<b>Description & Purpose</b>", styles["th"])],
         [Paragraph("<code>DATATRIPWIRE_ENV</code>", styles["code"]), Paragraph("<code>development</code>", styles["td"]), Paragraph("Application runtime environment (development/production).", styles["td"])],
-        [Paragraph("<code>PORT</code>", styles["code"]), Paragraph("<code>8000</code>", styles["td"]), Paragraph("Backend FastAPI server listening port.", styles["td"])],
-        [Paragraph("<code>MAX_FILE_SIZE_MB</code>", styles["code"]), Paragraph("<code>5</code>", styles["td"]), Paragraph("Maximum allowed CSV upload size (in megabytes).", styles["td"])],
+        [Paragraph("<code>BACKEND_PORT</code>", styles["code"]), Paragraph("<code>8000</code>", styles["td"]), Paragraph("Backend FastAPI server listening port.", styles["td"])],
+        [Paragraph("<code>MAX_FILE_SIZE_MB</code>", styles["code"]), Paragraph("<code>10</code>", styles["td"]), Paragraph("Maximum allowed CSV upload size (in megabytes).", styles["td"])],
         [Paragraph("<code>CORS_ORIGINS</code>", styles["code"]), Paragraph("<code>http://localhost:5173</code>", styles["td"]), Paragraph("Allowed frontend origins for CORS header policy.", styles["td"])],
     ]
     t_env = Table(env_data, colWidths=[120, 100, 284])
@@ -1144,7 +1072,7 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
@@ -1168,26 +1096,26 @@ def build_pdf_report():
         [
             Paragraph("<b>Backend Unit & API</b>", styles["td"]),
             Paragraph("pytest 9.1+ · anyio · TestClient", styles["td"]),
-            Paragraph("115 tests: CSV ingestion, profiler, mutator, validators, metrics, evaluator, recommendations, API routes.", styles["td"]),
-            Paragraph("<b>115 passed</b> in 0.85s (0 failures, 0 regressions)", styles["td"]),
+            Paragraph("140 tests: sales and manufacturing validation, mutations, metrics, evaluations, recommendations, and the full 5,040-row dataset.", styles["td"]),
+            Paragraph("<b>140 passed</b> in 5.8s (0 failures, 0 regressions)", styles["td"]),
         ],
         [
             Paragraph("<b>Frontend Linting</b>", styles["td"]),
             Paragraph("oxlint 1.81+ (multi-threaded)", styles["td"]),
             Paragraph("15 files, 116 rules: syntax, React hooks, imports, type hygiene.", styles["td"]),
-            Paragraph("<b>0 errors, 0 warnings</b> in 14ms", styles["td"]),
+            Paragraph("<b>0 errors, 0 warnings</b> in 51ms", styles["td"]),
         ],
         [
             Paragraph("<b>TypeScript & Build</b>", styles["td"]),
             Paragraph("tsc -b && vite build", styles["td"]),
             Paragraph("Strict typechecking and production asset bundling.", styles["td"]),
-            Paragraph("<b>Compiled cleanly</b> in 131ms (0 errors)", styles["td"]),
+            Paragraph("<b>Compiled cleanly</b> in 151ms (0 errors)", styles["td"]),
         ],
         [
             Paragraph("<b>End-to-End Workflow</b>", styles["td"]),
-            Paragraph("Browser Subagent / Playwright", styles["td"]),
-            Paragraph("Full user journey: Ingest, profile, mutate, survive, recommend, harden, trap.", styles["td"]),
-            Paragraph("<b>Verified end-to-end</b> with real data & screenshots", styles["td"]),
+            Paragraph("Browser Subagent / Automation", styles["td"]),
+            Paragraph("Full user journeys across both Sales and Manufacturing IoT demo workflows.", styles["td"]),
+            Paragraph("<b>Verified end-to-end</b> with real browser execution", styles["td"]),
         ],
     ]
     t_test = Table(test_summary_data, colWidths=[100, 100, 184, 120])
@@ -1198,7 +1126,7 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4.5),
+                ("PADDING", (0, 0), (-1, -1), 4.2),
             ]
         )
     )
@@ -1208,15 +1136,15 @@ def build_pdf_report():
     story.append(Paragraph("Backend Test Suite Module Breakdown", styles["h2"]))
     mod_breakdown_data = [
         [Paragraph("<b>Test Module</b>", styles["th"]), Paragraph("<b>Coverage Focus</b>", styles["th"]), Paragraph("<b>Test Count</b>", styles["th"])],
-        [Paragraph("<code>tests/test_api.py</code>", styles["code"]), Paragraph("FastAPI endpoints, CORS, file upload validation, 404/422 error handlers", styles["td"]), Paragraph("18 tests (100% pass)", styles["td"])],
-        [Paragraph("<code>tests/test_profiler.py</code>", styles["code"]), Paragraph("Null distributions, column profiling, summary statistics, schema inference", styles["td"]), Paragraph("14 tests (100% pass)", styles["td"])],
-        [Paragraph("<code>tests/test_mutation_engine.py</code>", styles["code"]), Paragraph("Deep copy isolation, 5 mutation operators, reproducibility seed, invalid targets", styles["td"]), Paragraph("22 tests (100% pass)", styles["td"])],
-        [Paragraph("<code>tests/test_validators.py</code>", styles["code"]), Paragraph("All 7 validation rules, boundary conditions, expected row count mismatches", styles["td"]), Paragraph("26 tests (100% pass)", styles["td"])],
-        [Paragraph("<code>tests/test_evaluator.py</code>", styles["code"]), Paragraph("Finding fingerprinting, baseline isolation, multi-point detection matching", styles["td"]), Paragraph("16 tests (100% pass)", styles["td"])],
-        [Paragraph("<code>tests/test_metrics.py</code>", styles["code"]), Paragraph("Decimal monetary arithmetic, revenue, AOV, zero division handling", styles["td"]), Paragraph("10 tests (100% pass)", styles["td"])],
-        [Paragraph("<code>tests/test_recommendations.py</code>", styles["code"]), Paragraph("Deterministic safeguard synthesis for surviving mutations", styles["td"]), Paragraph("9 tests (100% pass)", styles["td"])],
+        [Paragraph("<code>tests/unit/test_manufacturing.py</code>", styles["code"]), Paragraph("Manufacturing schema recognition, 11 telemetry validation rules, 5 mutations, metrics, recommendations", styles["td"]), Paragraph("20 tests (100% pass)", styles["td"])],
+        [Paragraph("<code>tests/integration/test_manufacturing_workflow.py</code>", styles["code"]), Paragraph("Full 5,040-row real dataset verification, domain API routes, immutability, reproducibility", styles["td"]), Paragraph("5 tests (100% pass)", styles["td"])],
+        [Paragraph("<code>tests/integration/test_api.py</code>", styles["code"]), Paragraph("FastAPI endpoints, CORS, upload validation, domain compatibility, 404/422 error handlers", styles["td"]), Paragraph("15 tests (100% pass)", styles["td"])],
+        [Paragraph("<code>tests/unit/test_validators.py</code>", styles["code"]), Paragraph("Sales validation rules, boundary conditions, expected row count mismatches", styles["td"]), Paragraph("10 tests (100% pass)", styles["td"])],
+        [Paragraph("<code>tests/unit/test_mutation_engine.py</code>", styles["code"]), Paragraph("Deep copy isolation, 5 sales mutation operators, reproducibility seed, invalid targets", styles["td"]), Paragraph("8 tests (100% pass)", styles["td"])],
+        [Paragraph("<code>tests/unit/test_evaluator.py</code>", styles["code"]), Paragraph("Finding fingerprinting, baseline isolation, multi-point detection matching", styles["td"]), Paragraph("11 tests (100% pass)", styles["td"])],
+        [Paragraph("<code>tests/test_domain_models.py</code>", styles["code"]), Paragraph("Pydantic v2 data models, validation contracts, domain enum serialization", styles["td"]), Paragraph("30 tests (100% pass)", styles["td"])],
     ]
-    t_mod = Table(mod_breakdown_data, colWidths=[140, 264, 100])
+    t_mod = Table(mod_breakdown_data, colWidths=[150, 254, 100])
     t_mod.setStyle(
         TableStyle(
             [
@@ -1224,7 +1152,7 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
@@ -1232,51 +1160,86 @@ def build_pdf_report():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 14: MAIN DEMONSTRATION SCENARIO
+    # PAGE 14: SAMPLE DATASETS & DEMONSTRATION SCENARIOS
     # =========================================================================
-    story.append(Paragraph("14. End-to-End Demonstration Scenario", styles["h1"]))
+    story.append(Paragraph("14. Sample Datasets & Demonstration Scenarios", styles["h1"]))
     story.append(
         Paragraph(
-            "The core live demonstration uses the bundled 15-record sales dataset (<code>sample_sales.csv</code>) "
-            "to exhibit the vulnerability escape, metric drift, and safeguard hardening cycle:",
+            "DataTripwire includes curated, clean synthetic datasets organized under <code>data/samples/</code> "
+            "for reproducibility and demonstration. All baseline datasets are pristine; faults are injected exclusively in memory:",
             styles["body"],
         )
     )
 
-    demo_steps = [
-        [Paragraph("<b>Step</b>", styles["th"]), Paragraph("<b>Action & State</b>", styles["th"]), Paragraph("<b>Harness State</b>", styles["th"]), Paragraph("<b>Observed Empirical Result</b>", styles["th"])],
+    ds_cat_data = [
+        [Paragraph("<b>Dataset Filename</b>", styles["th"]), Paragraph("<b>Domain Profile</b>", styles["th"]), Paragraph("<b>Records / Cols</b>", styles["th"]), Paragraph("<b>Size</b>", styles["th"]), Paragraph("<b>Evaluation Purpose & Characteristics</b>", styles["th"])],
         [
-            Paragraph("1. Clean Baseline", styles["td"]),
-            Paragraph("Load Sample Dataset", styles["td"]),
-            Paragraph("Pristine 15 transactions", styles["td"]),
-            Paragraph("Total Revenue: <b>₹19,000.00</b> · 0 nulls · 0 duplicates", styles["td"]),
+            Paragraph("<code>ecommerce_showcase_2500.csv</code>", styles["code"]),
+            Paragraph("E-Commerce Sales", styles["td"]),
+            Paragraph("2,500 rows · 10 cols", styles["td"]),
+            Paragraph("226 KB", styles["td"]),
+            Paragraph("High-scale retail testing: duplicate orders, price/quantity corruptions, downstream revenue drift.", styles["td"]),
+        ],
+        [
+            Paragraph("<code>manufacturing_iot_sensor_readings_5040.csv</code>", styles["code"]),
+            Paragraph("Industrial IoT", styles["td"]),
+            Paragraph("5,040 rows · 18 cols", styles["td"]),
+            Paragraph("824 KB", styles["td"]),
+            Paragraph("Industrial equipment telemetry: composite machine/timestamp uniqueness, sensor drift, energy kWh.", styles["td"]),
+        ],
+        [
+            Paragraph("<code>realistic_sales_test.csv</code>", styles["code"]),
+            Paragraph("E-Commerce Sales", styles["td"]),
+            Paragraph("60 rows · 5 cols", styles["td"]),
+            Paragraph("2.7 KB", styles["td"]),
+            Paragraph("Compact deterministic sales fixture for rapid integration testing.", styles["td"]),
+        ],
+    ]
+    t_dsc = Table(ds_cat_data, colWidths=[120, 80, 85, 45, 174])
+    t_dsc.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), NAVY_PRIMARY),
+                ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
+                ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
+            ]
+        )
+    )
+    story.append(t_dsc)
+    story.append(Spacer(1, 8))
+
+    story.append(Paragraph("Dual End-to-End Demonstration Walkthrough", styles["h2"]))
+    demo_steps = [
+        [Paragraph("<b>Workflow Step</b>", styles["th"]), Paragraph("<b>E-Commerce Sales Scenario</b>", styles["th"]), Paragraph("<b>Manufacturing IoT Scenario</b>", styles["th"])],
+        [
+            Paragraph("1. Load Baseline", styles["td"]),
+            Paragraph("Load 15-tx sales demo (Revenue: ₹19,000.00).", styles["td"]),
+            Paragraph("Load 20-rdg IoT demo (Units: 156, Energy: 47.6 kWh).", styles["td"]),
         ],
         [
             Paragraph("2. Injected Fault", styles["td"]),
-            Paragraph("Synthesize duplicate transaction ORD-101", styles["td"]),
-            Paragraph("Quantity: 1 · Unit Price: ₹1,000.00", styles["td"]),
-            Paragraph("Independent copy created; source CSV pristine", styles["td"]),
+            Paragraph("Duplicate transaction ORD-101 (+₹1,000 revenue impact).", styles["td"]),
+            Paragraph("Duplicate sensor frame RDG-01-0001 (telemetry replay).", styles["td"]),
         ],
         [
             Paragraph("3. Vulnerability Run", styles["td"]),
-            Paragraph("Execute evaluation with Uniqueness OFF", styles["td"]),
-            Paragraph("Baseline safeguards active; uniqueness disabled", styles["td"]),
-            Paragraph("<b>Score: 0% · Fault Survived</b> · Revenue drifts to ₹20,000.00 (+₹1,000.00 / +5.26% error)", styles["td"]),
+            Paragraph("Uniqueness OFF &rarr; <b>Score: 0% (Survived)</b> · Revenue drifts to ₹20,000 (+₹1,000 error).", styles["td"]),
+            Paragraph("Composite Uniqueness OFF &rarr; <b>Score: 0% (Survived)</b> · Telemetry stream leaked undetected.", styles["td"]),
         ],
         [
             Paragraph("4. Recommendation", styles["td"]),
-            Paragraph("Inspect Investigation forensics", styles["td"]),
-            Paragraph("Actionable safeguard synthesized", styles["td"]),
-            Paragraph("Recommends: <code>UNIQUENESS on transaction_id</code> with Python validation code snippet", styles["td"]),
+            Paragraph("Recommends: <code>check_unique_transaction_id</code>.", styles["td"]),
+            Paragraph("Recommends: <code>check_machine_timestamp_unique</code>.", styles["td"]),
         ],
         [
             Paragraph("5. Hardened Run", styles["td"]),
-            Paragraph("Click 'Test Recommended Safeguard' & re-evaluate", styles["td"]),
-            Paragraph("Uniqueness check enabled in rule configuration", styles["td"]),
-            Paragraph("<b>Score: 100% · Fault Trapped ✓</b> · Duplicate blocked at gate; observed revenue protected at ₹19,000.00 (₹0.00 drift)", styles["td"]),
+            Paragraph("Click 'Test Safeguard' &rarr; <b>Score: 100% (Trapped ✓)</b> · Revenue protected at ₹19,000 (₹0 drift).", styles["td"]),
+            Paragraph("Click 'Test Safeguard' &rarr; <b>Score: 100% (Trapped ✓)</b> · Telemetry frame blocked; 0 drift.", styles["td"]),
         ],
     ]
-    t_demo = Table(demo_steps, colWidths=[60, 130, 140, 174])
+    t_demo = Table(demo_steps, colWidths=[80, 212, 212])
     t_demo.setStyle(
         TableStyle(
             [
@@ -1284,22 +1247,11 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4.2),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
     story.append(t_demo)
-    story.append(Spacer(1, 8))
-
-    story.append(Paragraph("Bundled Reference Dataset Inventory (sample_sales.csv)", styles["h2"]))
-    ds_summary_text = (
-        "<b>Reference Dataset Metadata:</b> 15 Records · 5 Columns: <code>transaction_id, customer_id, quantity, unit_price, transaction_date</code><br/>"
-        "• Total Baseline Clean Revenue: <b>₹19,000.00</b> (exact Decimal sum of <code>quantity * unit_price</code>)<br/>"
-        "• Total Transactions: <b>15</b> · Distinct Customers: <b>10</b> (CUST-001 through CUST-010)<br/>"
-        "• Target Injection Row: <code>ORD-101</code> (Customer: CUST-001, Quantity: 1, Unit Price: ₹1,000.00)<br/>"
-        "• Downstream Ledger Distortion: +₹1,000.00 net revenue inflation, distorting executive reporting until trapped."
-    )
-    story.append(make_callout(ds_summary_text, styles, border_color=EMERALD_GREEN, bg_color=GREEN_BG))
     story.append(PageBreak())
 
     # =========================================================================
@@ -1333,9 +1285,9 @@ def build_pdf_report():
             Paragraph("<b>Active & Synthetic.</b> Adversarially injects controlled mutations into memory copies.", styles["td"]),
         ],
         [
-            Paragraph("<b>Business Impact</b>", styles["td"]),
-            Paragraph("Reports pass/fail counts; rarely quantifies financial distortion.", styles["td"]),
-            Paragraph("<b>Measures exact financial metric error</b> (e.g. INR/USD revenue discrepancy).", styles["td"]),
+            Paragraph("<b>Impact Measurement</b>", styles["td"]),
+            Paragraph("Reports pass/fail counts; rarely quantifies financial or operational distortion.", styles["td"]),
+            Paragraph("<b>Measures exact metric error</b> (e.g. INR revenue discrepancy or production delta).", styles["td"]),
         ],
         [
             Paragraph("<b>Remediation</b>", styles["td"]),
@@ -1351,7 +1303,7 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
@@ -1360,12 +1312,12 @@ def build_pdf_report():
 
     story.append(Paragraph("16. Security, Local Privacy & Architectural Boundaries", styles["h1"]))
     story.append(Paragraph("• <b>100% Local Processing & Zero External Telemetry:</b> No dataset contents, column names, or evaluation metrics are transmitted to cloud services, third-party APIs, or external LLMs.", styles["bullet"]))
-    story.append(Paragraph("• <b>Strict Ingestion Guardrails:</b> File upload bounds (5 MB max default), extension enforcement (.csv only), UTF-8 / Latin-1 encoding detection, and boundary checks (50,000 rows max, 100 columns max).", styles["bullet"]))
+    story.append(Paragraph("• <b>Strict Ingestion Guardrails:</b> File upload bounds (10 MB max default), extension enforcement (.csv only), UTF-8 / Latin-1 encoding detection, and boundary checks (50,000 rows max, 100 columns max).", styles["bullet"]))
     story.append(Paragraph("• <b>Safe Filesystem Repositories:</b> Storage paths are sanitized and isolated in <code>data/runtime/</code>; directory traversal via filenames is strictly prevented.", styles["bullet"]))
 
     story.append(Paragraph("Current Architectural Limitations (Honest Disclosure)", styles["h2"]))
     story.append(Paragraph("1. <b>Tabular CSV Scope:</b> The current engine parses tabular CSV files. Parquet, Delta Lake, Apache Iceberg, and direct SQL warehouse connectors are planned for future phases.", styles["bullet"]))
-    story.append(Paragraph("2. <b>Sales Schema Specialization:</b> While generic CSV profiling works across all CSVs, business revenue impact analysis is currently specialized for schemas containing <code>transaction_id, customer_id, quantity, unit_price, transaction_date</code>.", styles["bullet"]))
+    story.append(Paragraph("2. <b>Configurable Testing Model, Not Industrial Safety DCS:</b> The manufacturing profile is a data-pipeline reliability testing tool, not a certified real-time SCADA/DCS plant shutdown safety system.", styles["bullet"]))
     story.append(Paragraph("3. <b>Local In-Memory Processing:</b> Mutations and metrics execute in-memory via Pandas; massive distributed datasets exceeding memory limits require future PySpark / DuckDB integration.", styles["bullet"]))
     story.append(PageBreak())
 
@@ -1378,7 +1330,7 @@ def build_pdf_report():
         [
             Paragraph("<b>Phase 4: Multi-Format & CI/CD</b>", styles["td"]),
             Paragraph("Near-Term (Q1 2027)", styles["td"]),
-            Paragraph("• Parquet/JSON ingestion drivers.<br/>• Headless CLI command (<code>datatripwire run --ci</code>) for GitHub Actions / GitLab CI.<br/>• Generic business metric calculation formulas configurable via YAML contracts.", styles["td"]),
+            Paragraph("• Parquet/JSON ingestion drivers.<br/>• Headless CLI command (<code>datatripwire run --ci</code>) for GitHub Actions / GitLab CI.<br/>• Additional domain adapters (Healthcare HL7, FinTech Fix/SWIFT).", styles["td"]),
         ],
         [
             Paragraph("<b>Phase 5: Warehouse Connectors</b>", styles["td"]),
@@ -1399,7 +1351,7 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 4),
+                ("PADDING", (0, 0), (-1, -1), 3.8),
             ]
         )
     )
@@ -1410,10 +1362,10 @@ def build_pdf_report():
     story.append(
         Paragraph(
             "DataTripwire establishes that mutation testing is not only viable for data pipelines, but essential. "
-            "By systematically introducing controlled data corruptions into isolated in-memory replicas, data engineering "
-            "teams can replace ungrounded assumptions with empirical confidence. The completed prototype demonstrates "
-            "that catching a data fault is only half the battle: understanding the exact financial magnitude of silent "
-            "escapes provides the business justification necessary to prioritize data reliability engineering.",
+            "By systematically introducing controlled data corruptions into isolated in-memory replicas across retail sales "
+            "and industrial telemetry, data teams replace ungrounded assumptions with empirical confidence. The completed platform "
+            "demonstrates that catching a data fault is only half the battle: understanding the exact financial and operational "
+            "magnitude of silent escapes provides the business justification necessary to prioritize data reliability engineering.",
             styles["body"],
         )
     )
@@ -1435,12 +1387,12 @@ def build_pdf_report():
         [
             Paragraph("<code>scripts/run_tests.py</code>", styles["code"]),
             Paragraph("Test Harness", styles["td"]),
-            Paragraph("Runs full test suite: <code>python scripts/run_tests.py</code> (115 pytest + oxlint + vite).", styles["td"]),
+            Paragraph("Runs full test suite: <code>python scripts/run_tests.py</code> (140 pytest + oxlint + vite).", styles["td"]),
         ],
         [
-            Paragraph("<code>scripts/check_setup.py</code>", styles["code"]),
-            Paragraph("Diagnostics", styles["td"]),
-            Paragraph("Validates environment prerequisites: <code>python scripts/check_setup.py</code>.", styles["td"]),
+            Paragraph("<code>data/samples/</code>", styles["code"]),
+            Paragraph("Sample Datasets", styles["td"]),
+            Paragraph("Catalog containing 2,500-row sales and 5,040-row manufacturing IoT CSV fixtures.", styles["td"]),
         ],
     ]
     t_app = Table(app_data, colWidths=[120, 80, 304])
@@ -1451,18 +1403,18 @@ def build_pdf_report():
                 ("BOX", (0, 0), (-1, -1), 1, BORDER_LIGHT),
                 ("INNERGRID", (0, 0), (-1, -1), 0.5, BORDER_SUBTLE),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, BG_LIGHT]),
-                ("PADDING", (0, 0), (-1, -1), 3.5),
+                ("PADDING", (0, 0), (-1, -1), 3.2),
             ]
         )
     )
     story.append(t_app)
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 5))
 
     # Attestation Signature Box
     attest_box = (
         "<b>20. Document Attestation & Verification Record</b><br/>"
         "• <b>Repository:</b> https://github.com/rahulgoreofficial/DataTripwire-Data-Pipeline-Reliability-Mutation-Testing<br/>"
-        "• <b>Verification Status:</b> 115 / 115 backend tests passed · 0 frontend lint warnings · 0 build errors<br/>"
+        "• <b>Verification Status:</b> 140 / 140 backend tests passed · 0 frontend lint warnings · 0 build errors<br/>"
         "• <b>Runtime Integrity:</b> 100% verified locally on Windows 10/11 with Python 3.14.3 and Node.js v24.12.0<br/>"
         "• <b>Lead Maintainer:</b> Rahul Gore &lt;rahulgoreoffical@gmail.com&gt;<br/>"
         "• <b>Date of Attestation:</b> October 15, 2026"

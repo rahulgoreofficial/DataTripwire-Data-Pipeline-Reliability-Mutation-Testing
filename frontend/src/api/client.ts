@@ -67,6 +67,14 @@ export async function loadSampleDataset(): Promise<DatasetResponse> {
   return request<DatasetResponse>("/api/v1/datasets/sample", { method: "POST" });
 }
 
+export async function loadSampleManufacturingDataset(): Promise<DatasetResponse> {
+  return request<DatasetResponse>("/api/v1/datasets/sample-manufacturing", { method: "POST" });
+}
+
+export async function getDomains(): Promise<any[]> {
+  return request<any[]>("/api/v1/domains");
+}
+
 export async function uploadDataset(file: File): Promise<DatasetResponse> {
   const form = new FormData();
   form.append("file", file);

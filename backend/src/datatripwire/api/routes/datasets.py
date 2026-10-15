@@ -9,7 +9,8 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from fastapi.responses import JSONResponse
 
 from datatripwire.api.dependencies import get_dataset_repository, get_evaluation_repository
-from datatripwire.config import SAMPLE_SALES_CSV
+from datatripwire.config import SAMPLE_MANUFACTURING_CSV, SAMPLE_SALES_CSV
+from datatripwire.domains.registry import get_domain_registry
 from datatripwire.domain.models import DatasetProfile
 from datatripwire.exceptions import InvalidCSVError
 from datatripwire.repositories.dataset_repository import DatasetRepository
@@ -23,33 +24,46 @@ router = APIRouter(prefix="/api/v1/datasets", tags=["Datasets"])
 
 @router.post("/sample", response_model=DatasetResponse, status_code=201)
 def load_sample_dataset(
+    domain: str = "sales",
     dataset_repo: DatasetRepository = Depends(get_dataset_repository),
 ):
-    """Load the bundled deterministic e-commerce sales dataset.
-    
-    Parses and profiles the real sample_sales.csv file using the standard
-    ingestion pipeline.
-    """
-    if not SAMPLE_SALES_CSV.is_file():
-        raise InvalidCSVError("Bundled sample dataset file is missing from backend package.")
+    """Load a bundled deterministic sample dataset (sales or manufacturing)."""
+    if domain.lower() in ("manufacturing", "mfg", "iot"):
+        csv_file = SAMPLE_MANUFACTURING_CSV
+        dataset_id = "sample-manufacturing"
+        filename = "sample_manufacturing.csv"
+    else:
+        csv_file = SAMPLE_SALES_CSV
+        dataset_id = "sample-sales"
+        filename = "sample_sales.csv"
+
+    if not csv_file.is_file():
+        raise InvalidCSVError(f"Bundled sample dataset file '{filename}' is missing from backend package.")
 
     df, raw_bytes, warnings = validate_and_load_csv(
-        file_source=SAMPLE_SALES_CSV,
-        filename="sample_sales.csv",
+        file_source=csv_file,
+        filename=filename,
     )
 
-    dataset_id = "sample-sales"
-    profile = profile_dataframe(df, dataset_id=dataset_id, filename="sample_sales.csv")
+    profile = profile_dataframe(df, dataset_id=dataset_id, filename=filename)
 
     response = dataset_repo.save(
         dataset_id=dataset_id,
-        filename="sample_sales.csv",
+        filename=filename,
         csv_bytes=raw_bytes,
         profile=profile,
         is_sales_compatible=profile.is_sales_compatible,
         warnings=warnings + profile.warnings,
     )
     return response
+
+
+@router.post("/sample-manufacturing", response_model=DatasetResponse, status_code=201)
+def load_sample_manufacturing_dataset(
+    dataset_repo: DatasetRepository = Depends(get_dataset_repository),
+):
+    """Convenience endpoint to load the bundled deterministic manufacturing IoT dataset."""
+    return load_sample_dataset(domain="manufacturing", dataset_repo=dataset_repo)
 
 
 @router.post("", response_model=DatasetResponse, status_code=201)
@@ -126,3 +140,19 @@ def list_dataset_evaluations(
     # Verify dataset exists
     dataset_repo.get(dataset_id)
     return eval_repo.list_for_dataset(dataset_id)
+
+
+@router.get("/{dataset_id}/domains")
+def get_dataset_domains(
+    dataset_id: str,
+    dataset_repo: DatasetRepository = Depends(get_dataset_repository),
+):
+    """Retrieve supported domain profiles and their compatibility for a dataset."""
+    df = dataset_repo.get_dataframe(dataset_id)
+    registry = get_domain_registry()
+    detected = registry.detect_domain(df)
+    return {
+        "dataset_id": dataset_id,
+        "detected_domain": detected.domain_id,
+        "domains": registry.list_domains(df),
+    }

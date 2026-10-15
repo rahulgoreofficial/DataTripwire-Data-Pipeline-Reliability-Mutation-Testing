@@ -16,6 +16,7 @@ BACKEND_ROOT = PACKAGE_ROOT.parent.parent
 WORKSPACE_ROOT = BACKEND_ROOT.parent
 DATA_DIR = PACKAGE_ROOT / "data"
 SAMPLE_SALES_CSV = DATA_DIR / "sample_sales.csv"
+SAMPLE_MANUFACTURING_CSV = DATA_DIR / "sample_manufacturing.csv"
 
 # Schema expectations for initial sales dataset
 SALES_SCHEMA_COLUMNS: List[str] = [
@@ -37,6 +38,42 @@ SALES_COLUMN_TYPES: Dict[str, str] = {
     "unit_price": "float",
     "transaction_date": "date",
 }
+
+# Manufacturing / Industrial IoT schema expectations
+MANUFACTURING_SCHEMA_COLUMNS: List[str] = [
+    "reading_id",
+    "timestamp",
+    "facility_id",
+    "machine_id",
+    "production_line",
+    "product_family",
+    "batch_id",
+    "shift",
+    "temperature_c",
+    "pressure_bar",
+    "vibration_mm_s",
+    "motor_current_a",
+    "power_kw",
+    "energy_kwh_20min",
+    "units_produced",
+    "defect_count",
+    "quality_pass_rate_pct",
+    "machine_status",
+]
+
+# Essential columns required for manufacturing validation & testing
+MANUFACTURING_REQUIRED_COLUMNS: List[str] = [
+    "reading_id",
+    "timestamp",
+    "machine_id",
+    "temperature_c",
+    "pressure_bar",
+    "vibration_mm_s",
+    "units_produced",
+    "defect_count",
+]
+
+MANUFACTURING_PRIMARY_KEY: str = "reading_id"
 
 # Documented baseline expectations for sample_sales.csv
 SAMPLE_DATASET_BASELINE = {

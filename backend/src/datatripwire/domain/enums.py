@@ -7,16 +7,31 @@ and evaluation statuses across all phases of the platform.
 from enum import Enum
 
 
+class DataDomain(str, Enum):
+    """Supported data domains in DataTripwire."""
+    SALES = "sales"
+    MANUFACTURING = "manufacturing"
+    GENERAL = "general"
+
+
 class MutationType(str, Enum):
     """Supported categories of synthetic data mutations.
     
     Each category targets a distinct vulnerability in data pipelines.
     """
+    # Sales Mutations
     DUPLICATE_ROW = "duplicate_row"
     MISSING_REQUIRED_VALUE = "missing_required_value"
     INVALID_QUANTITY = "invalid_quantity"
     INVALID_UNIT_PRICE = "invalid_unit_price"
     DROPPED_ROW = "dropped_row"
+
+    # Manufacturing Mutations
+    DUPLICATE_SENSOR_READING = "duplicate_sensor_reading"
+    MISSING_SENSOR_VALUE = "missing_sensor_value"
+    INVALID_SENSOR_VALUE = "invalid_sensor_value"
+    DROPPED_SENSOR_READING = "dropped_sensor_reading"
+    INVALID_PRODUCTION_VALUE = "invalid_production_value"
 
 
 class FindingSeverity(str, Enum):
@@ -34,6 +49,7 @@ class RuleType(str, Enum):
     VALUE_RANGE = "value_range"
     DATA_TYPE = "data_type"
     DATE_VALIDITY = "date_validity"
+    CONSISTENCY = "consistency"
 
 
 class RecommendationStatus(str, Enum):

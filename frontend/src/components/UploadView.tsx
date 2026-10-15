@@ -7,7 +7,7 @@
  */
 
 import { useCallback, useRef, useState } from "react";
-import { loadSampleDataset, uploadDataset } from "../api/client";
+import { loadSampleDataset, loadSampleManufacturingDataset, uploadDataset } from "../api/client";
 import type { DatasetResponse } from "../types/api";
 import { PipelineIllustration } from "./PipelineIllustration";
 
@@ -16,7 +16,7 @@ interface UploadViewProps {
 }
 
 export function UploadView({ onDatasetLoaded }: UploadViewProps) {
-  const [loading, setLoading] = useState<"idle" | "sample" | "upload">("idle");
+  const [loading, setLoading] = useState<"idle" | "sample" | "sample-mfg" | "upload">("idle");
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -32,6 +32,17 @@ export function UploadView({ onDatasetLoaded }: UploadViewProps) {
     setLoading("sample");
     try {
       const dataset = await loadSampleDataset();
+      onDatasetLoaded(dataset);
+    } catch (err) {
+      handleError(err);
+    }
+  };
+
+  const doLoadMfgSample = async () => {
+    setError(null);
+    setLoading("sample-mfg");
+    try {
+      const dataset = await loadSampleManufacturingDataset();
       onDatasetLoaded(dataset);
     } catch (err) {
       handleError(err);
@@ -98,28 +109,51 @@ export function UploadView({ onDatasetLoaded }: UploadViewProps) {
             live pipelines to verify if your validation rules catch or leak corrupt data.
           </p>
 
-          <div className="hero-actions-bar">
+          <div className="hero-actions-bar" style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
             <button
               id="btn-load-sample"
               className="btn btn-signal btn-lg"
               onClick={doLoadSample}
               disabled={isLoading}
               aria-busy={loading === "sample"}
+              title="Load E-commerce Sales canonical dataset"
             >
               {loading === "sample" ? (
                 <>
                   <span className="spinner" />
-                  <span>Loading Demo Pipeline…</span>
+                  <span>Loading Sales Demo…</span>
                 </>
               ) : (
                 <>
                   <span>⚡</span>
-                  <span>Load Sample Dataset (15 Tx · ₹11.3k)</span>
+                  <span>Sales Demo (15 Tx)</span>
                 </>
               )}
             </button>
 
             <button
+              id="btn-load-sample-mfg"
+              className="btn btn-primary btn-lg"
+              onClick={doLoadMfgSample}
+              disabled={isLoading}
+              aria-busy={loading === "sample-mfg"}
+              title="Load Manufacturing Industrial IoT telemetry dataset"
+            >
+              {loading === "sample-mfg" ? (
+                <>
+                  <span className="spinner" />
+                  <span>Loading IoT Demo…</span>
+                </>
+              ) : (
+                <>
+                  <span>⚙️</span>
+                  <span>Mfg IoT Demo (20 Rdg)</span>
+                </>
+              )}
+            </button>
+
+            <button
+              id="btn-upload-custom-csv"
               className="btn btn-secondary btn-lg"
               onClick={() => !isLoading && fileRef.current?.click()}
               disabled={isLoading}

@@ -76,6 +76,10 @@ class DatasetRepository:
             uploaded_at=upload_time,
             profile=profile,
             is_sales_compatible=is_sales_compatible,
+            is_manufacturing_compatible=getattr(profile, "is_manufacturing_compatible", False),
+            detected_domain=getattr(profile, "detected_domain", "sales"),
+            supported_domains=getattr(profile, "supported_domains", []),
+            domain_compatibility=getattr(profile, "domain_compatibility", {}),
             warnings=warnings or [],
         )
 
@@ -88,12 +92,17 @@ class DatasetRepository:
         try:
             with open(meta_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
+            profile_obj = DatasetProfile(**data["profile"])
             return DatasetResponse(
                 dataset_id=data["dataset_id"],
                 filename=data["filename"],
                 uploaded_at=datetime.fromisoformat(data["uploaded_at"]),
-                profile=DatasetProfile(**data["profile"]),
-                is_sales_compatible=data["is_sales_compatible"],
+                profile=profile_obj,
+                is_sales_compatible=data.get("is_sales_compatible", profile_obj.is_sales_compatible),
+                is_manufacturing_compatible=getattr(profile_obj, "is_manufacturing_compatible", False),
+                detected_domain=getattr(profile_obj, "detected_domain", "sales"),
+                supported_domains=getattr(profile_obj, "supported_domains", []),
+                domain_compatibility=getattr(profile_obj, "domain_compatibility", {}),
                 warnings=data.get("warnings", []),
             )
         except Exception as e:
@@ -107,7 +116,16 @@ class DatasetRepository:
 
         try:
             # Preserve identifier strings (e.g. leading zeros) by specifying dtype as object for ID columns
-            return pd.read_csv(csv_path, dtype={"transaction_id": str, "customer_id": str})
+            return pd.read_csv(
+                csv_path,
+                dtype={
+                    "transaction_id": str,
+                    "customer_id": str,
+                    "reading_id": str,
+                    "machine_id": str,
+                    "facility_id": str,
+                },
+            )
         except Exception as e:
             raise StorageCorruptedError(str(csv_path), str(e))
 

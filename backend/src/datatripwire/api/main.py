@@ -10,7 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from datatripwire.api.routes import datasets, evaluations, health
+from datatripwire.api.routes import datasets, domains, evaluations, health
 from datatripwire.config import settings
 from datatripwire.exceptions import (
     DatasetNotFoundError,
@@ -154,6 +154,7 @@ def create_app() -> FastAPI:
 
     # 3. Mount Routers
     app.include_router(health.router)
+    app.include_router(domains.router)
     app.include_router(datasets.router)
     app.include_router(evaluations.router)
 

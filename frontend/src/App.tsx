@@ -29,6 +29,7 @@ export default function App() {
   const [dataset, setDataset] = useState<DatasetResponse | null>(null);
   const [report, setReport] = useState<EvaluationReport | null>(null);
   const [presetRules, setPresetRules] = useState<Partial<ValidationRuleConfig> | null>(null);
+  const [activeDomain, setActiveDomain] = useState<string>("sales");
 
   const currentIdx = VIEW_ORDER.indexOf(view);
 
@@ -39,7 +40,13 @@ export default function App() {
       case "profile":
         return dataset !== null;
       case "configure":
-        return dataset !== null && dataset.profile.is_sales_compatible;
+        return (
+          dataset !== null &&
+          (Boolean(dataset.profile.is_sales_compatible) ||
+            Boolean(dataset.profile.is_manufacturing_compatible) ||
+            Boolean(dataset.is_sales_compatible) ||
+            Boolean(dataset.is_manufacturing_compatible))
+        );
       case "results":
         return report !== null;
     }
@@ -54,10 +61,20 @@ export default function App() {
     setDataset(ds);
     setReport(null);
     setPresetRules(null);
+    const isMfg = Boolean(
+      ds.profile.is_manufacturing_compatible ||
+      ds.is_manufacturing_compatible ||
+      ds.profile.detected_domain === "manufacturing"
+    );
+    const isSales = Boolean(ds.profile.is_sales_compatible || ds.is_sales_compatible);
+    setActiveDomain(isMfg ? "manufacturing" : isSales ? "sales" : "general");
     setView("profile");
   };
 
-  const handleProceedToConfigure = () => {
+  const handleProceedToConfigure = (domain?: string) => {
+    if (domain) {
+      setActiveDomain(domain);
+    }
     setView("configure");
   };
 
@@ -134,7 +151,12 @@ export default function App() {
             hidden={view !== "profile"}
           >
             {view === "profile" && dataset && (
-              <ProfileView dataset={dataset} onProceed={handleProceedToConfigure} />
+              <ProfileView
+                dataset={dataset}
+                onProceed={handleProceedToConfigure}
+                activeDomain={activeDomain}
+                onSelectDomain={setActiveDomain}
+              />
             )}
           </section>
 
@@ -150,6 +172,7 @@ export default function App() {
                 dataset={dataset}
                 onEvaluationComplete={handleEvaluationComplete}
                 presetRules={presetRules}
+                activeDomain={activeDomain}
               />
             )}
           </section>
@@ -166,6 +189,7 @@ export default function App() {
                 report={report}
                 onReset={handleResetToConfigure}
                 onRetestWithSafeguard={handleRetestWithSafeguard}
+                activeDomain={activeDomain}
               />
             )}
           </section>

@@ -106,11 +106,27 @@ def profile_dataframe(df: pd.DataFrame, dataset_id: str, filename: str) -> Datas
     if duplicate_count > 0:
         warnings.append(f"Dataset contains {duplicate_count} duplicate row(s).")
 
-    # Sales compatibility
-    missing_sales_cols = [c for c in SALES_SCHEMA_COLUMNS if c not in df.columns]
-    is_sales_compatible = len(missing_sales_cols) == 0
+    # Multi-domain detection and schema compatibility
+    from datatripwire.domains.registry import get_domain_registry
+    registry = get_domain_registry()
+    detected_profile = registry.detect_domain(df)
+    detected_domain = detected_profile.domain_id
 
-    if not is_sales_compatible:
+    sales_profile = registry.get("sales")
+    is_sales_compatible, missing_sales_cols = sales_profile.is_compatible(df)
+
+    mfg_profile = registry.get("manufacturing")
+    is_mfg_compatible, missing_mfg_cols = mfg_profile.is_compatible(df)
+
+    domain_compatibility = {
+        "sales": is_sales_compatible,
+        "manufacturing": is_mfg_compatible,
+        "general": True,
+    }
+    supported_domains = registry.list_domains(df)
+
+    # For unknown/general schemas, provide informative guidance on sales/domain requirements
+    if detected_domain == "general":
         warnings.append(
             f"Dataset lacks required sales columns for mutation testing. Missing: {missing_sales_cols}"
         )
@@ -127,5 +143,9 @@ def profile_dataframe(df: pd.DataFrame, dataset_id: str, filename: str) -> Datas
         duplicate_row_count=duplicate_count,
         numeric_summaries=numeric_summaries,
         is_sales_compatible=is_sales_compatible,
+        is_manufacturing_compatible=is_mfg_compatible,
+        detected_domain=detected_domain,
+        domain_compatibility=domain_compatibility,
+        supported_domains=supported_domains,
         warnings=warnings,
     )

@@ -21,9 +21,10 @@ interface ConfigureViewProps {
   onEvaluationComplete: (report: EvaluationReport) => void;
   presetRules?: Partial<ValidationRuleConfig> | null;
   initialUniqueness?: boolean;
+  activeDomain?: string;
 }
 
-const MUTATION_TYPES: { value: MutationType; label: string; description: string }[] = [
+const SALES_MUTATION_TYPES: { value: MutationType; label: string; description: string }[] = [
   {
     value: "duplicate_row",
     label: "Duplicate Row",
@@ -51,7 +52,35 @@ const MUTATION_TYPES: { value: MutationType; label: string; description: string 
   },
 ];
 
-const DEFAULT_RULES: ValidationRuleConfig = {
+const MFG_MUTATION_TYPES: { value: MutationType; label: string; description: string }[] = [
+  {
+    value: "duplicate_sensor_reading",
+    label: "Duplicate Sensor Reading",
+    description: "Duplicates a telemetry frame to simulate sensor ingestion replay. Detectable via composite machine/timestamp uniqueness.",
+  },
+  {
+    value: "missing_sensor_value",
+    label: "Missing Sensor Value",
+    description: "Nullifies a mandatory telemetry sensor column (e.g. temperature_c) to test non-null safeguards.",
+  },
+  {
+    value: "invalid_sensor_value",
+    label: "Invalid Sensor Value",
+    description: "Sets sensor measurement to an invalid or out-of-bounds value (e.g. negative vibration or pressure).",
+  },
+  {
+    value: "dropped_sensor_reading",
+    label: "Dropped Sensor Reading",
+    description: "Deletes a sensor record from the stream to test expected-record-count reconciliation safeguards.",
+  },
+  {
+    value: "invalid_production_value",
+    label: "Invalid Production Value",
+    description: "Introduces inconsistent production counts (e.g. defect_count > units_produced or negative units).",
+  },
+];
+
+const DEFAULT_SALES_RULES: ValidationRuleConfig = {
   check_required_columns: true,
   check_required_values: true,
   check_quantity_positive: true,
@@ -62,7 +91,24 @@ const DEFAULT_RULES: ValidationRuleConfig = {
   expected_row_count: null,
 };
 
-const RULE_DEFINITIONS: {
+const DEFAULT_MFG_RULES: ValidationRuleConfig = {
+  check_required_columns: true,
+  check_required_values: true,
+  check_reading_id_unique: false,
+  check_machine_timestamp_unique: false, // Core demo: disabled by default!
+  check_timestamp_validity: true,
+  check_sensor_numeric: true,
+  check_non_negative_measurements: true,
+  check_quality_pass_rate_bounds: true,
+  check_production_consistency: true,
+  check_temperature_bounds: true,
+  temperature_min_c: 40.0,
+  temperature_max_c: 95.0,
+  check_expected_record_count: false,
+  expected_record_count: null,
+};
+
+const SALES_RULE_DEFINITIONS: {
   key: keyof ValidationRuleConfig;
   name: string;
   desc: string;
@@ -106,6 +152,70 @@ const RULE_DEFINITIONS: {
   },
 ];
 
+const MFG_RULE_DEFINITIONS: {
+  key: keyof ValidationRuleConfig;
+  name: string;
+  desc: string;
+  isKeyDemo?: boolean;
+}[] = [
+  {
+    key: "check_machine_timestamp_unique",
+    name: "Composite Machine & Timestamp Uniqueness",
+    desc: "Enforces (machine_id, timestamp) pair uniqueness. Toggle this to test duplicate telemetry frame escape vs detection.",
+    isKeyDemo: true,
+  },
+  {
+    key: "check_reading_id_unique",
+    name: "Reading ID Uniqueness",
+    desc: "Enforces that reading_id is unique across all sensor records.",
+  },
+  {
+    key: "check_required_columns",
+    name: "Schema Completeness",
+    desc: "Requires all 18 industrial telemetry columns to exist in the record stream.",
+  },
+  {
+    key: "check_required_values",
+    name: "Required Sensor Fields Non-Null",
+    desc: "Ensures essential sensor fields contain non-null values.",
+  },
+  {
+    key: "check_timestamp_validity",
+    name: "Timestamp ISO-8601 Format",
+    desc: "Validates timestamp format and chronological sanity.",
+  },
+  {
+    key: "check_sensor_numeric",
+    name: "Sensor Numeric & Finite Check",
+    desc: "Verifies sensor readings are numeric and finite (detects NaN/Inf/type corruption).",
+  },
+  {
+    key: "check_non_negative_measurements",
+    name: "Non-Negative Telemetry Measurements",
+    desc: "Verifies pressure, vibration, motor current, power, energy, units, and defects are ≥ 0.",
+  },
+  {
+    key: "check_quality_pass_rate_bounds",
+    name: "Quality Pass Rate Range",
+    desc: "Verifies quality_pass_rate_pct is within the configured 0% to 100% range.",
+  },
+  {
+    key: "check_production_consistency",
+    name: "Production Consistency Check",
+    desc: "Ensures defect_count does not exceed units_produced.",
+  },
+  {
+    key: "check_temperature_bounds",
+    name: "Operating Temperature Limits",
+    desc: "Checks operating temperature stays within configurable operating bounds [40°C - 95°C].",
+  },
+  {
+    key: "check_expected_record_count",
+    name: "Expected Record Count Reconciliation",
+    desc: "Validates telemetry record count matches expected reference (detects dropped readings).",
+  },
+];
+
 let uidSeq = 0;
 const generateId = () => `mut-${++uidSeq}`;
 
@@ -120,18 +230,51 @@ function createDefaultDuplicate(): MutationBuilder {
   };
 }
 
+function createDefaultMfgDuplicate(): MutationBuilder {
+  return {
+    id: generateId(),
+    mutation_type: "duplicate_sensor_reading",
+    target_record_id: "RDG-01-0001",
+    target_transaction_id: "RDG-01-0001",
+    target_column: "",
+    value: "",
+    description: "Duplicate sensor frame RDG-01-0001 (telemetry stream replay)",
+  };
+}
+
 export function ConfigureView({
   dataset,
   onEvaluationComplete,
   presetRules,
   initialUniqueness = false,
+  activeDomain,
 }: ConfigureViewProps) {
-  const [mutations, setMutations] = useState<MutationBuilder[]>([createDefaultDuplicate()]);
+  const isMfg =
+    activeDomain === "manufacturing" ||
+    (activeDomain === undefined &&
+      Boolean(
+        dataset.profile.is_manufacturing_compatible ||
+        dataset.is_manufacturing_compatible ||
+        dataset.profile.detected_domain === "manufacturing"
+      ));
+
+  const mutationTypes = isMfg ? MFG_MUTATION_TYPES : SALES_MUTATION_TYPES;
+  const ruleDefinitions = isMfg ? MFG_RULE_DEFINITIONS : SALES_RULE_DEFINITIONS;
+
+  const [mutations, setMutations] = useState<MutationBuilder[]>(() => [
+    isMfg ? createDefaultMfgDuplicate() : createDefaultDuplicate(),
+  ]);
+
   const [rules, setRules] = useState<ValidationRuleConfig>(() => ({
-    ...DEFAULT_RULES,
-    ...(initialUniqueness ? { check_unique_transaction_id: true } : {}),
+    ...(isMfg ? DEFAULT_MFG_RULES : DEFAULT_SALES_RULES),
+    ...(initialUniqueness
+      ? isMfg
+        ? { check_machine_timestamp_unique: true, check_reading_id_unique: true }
+        : { check_unique_transaction_id: true }
+      : {}),
     ...(presetRules ?? {}),
   }));
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -140,8 +283,9 @@ export function ConfigureView({
       ...prev,
       {
         id: generateId(),
-        mutation_type: "duplicate_row",
-        target_transaction_id: "ORD-102",
+        mutation_type: isMfg ? "duplicate_sensor_reading" : "duplicate_row",
+        target_transaction_id: isMfg ? "" : "ORD-102",
+        target_record_id: isMfg ? "RDG-01-0002" : "",
         target_column: "",
         value: "",
         description: "",
@@ -162,18 +306,28 @@ export function ConfigureView({
   };
 
   const setUniquenessRule = (enable: boolean) => {
-    setRules((prev) => ({ ...prev, check_unique_transaction_id: enable }));
+    if (isMfg) {
+      setRules((prev) => ({
+        ...prev,
+        check_machine_timestamp_unique: enable,
+        check_reading_id_unique: enable,
+      }));
+    } else {
+      setRules((prev) => ({ ...prev, check_unique_transaction_id: enable }));
+    }
   };
 
   const buildPayload = (): EvaluationCreateRequest => ({
+    domain: isMfg ? "manufacturing" : "sales",
     mutations: mutations.map((m) => {
       const item: EvaluationCreateRequest["mutations"][0] = {
         mutation_type: m.mutation_type,
-        target_transaction_id: m.target_transaction_id || undefined,
+        target_transaction_id: !isMfg ? (m.target_transaction_id || m.target_record_id || undefined) : undefined,
+        target_record_id: isMfg ? (m.target_record_id || m.target_transaction_id || undefined) : undefined,
         description: m.description || undefined,
       };
       if (m.target_column) item.target_column = m.target_column;
-      if (m.value !== "") item.value = Number(m.value);
+      if (m.value !== "" && m.value !== undefined && m.value !== null) item.value = Number(m.value);
       return item;
     }),
     rules,
@@ -197,7 +351,9 @@ export function ConfigureView({
     }
   };
 
-  const isUniquenessActive = rules.check_unique_transaction_id;
+  const isUniquenessActive = isMfg
+    ? Boolean(rules.check_machine_timestamp_unique || rules.check_reading_id_unique)
+    : Boolean(rules.check_unique_transaction_id);
 
   return (
     <div>
@@ -214,11 +370,11 @@ export function ConfigureView({
       >
         <div>
           <div className="hero-kicker" style={{ marginBottom: "8px" }}>
-            Workbench // Mutation Configuration
+            Workbench // Mutation Configuration · {isMfg ? "Industrial IoT" : "E-Commerce"}
           </div>
           <h2 style={{ marginBottom: "6px" }}>The Mutation Lab</h2>
           <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem" }}>
-            DATASET: {dataset.filename} · {dataset.profile.row_count} BASELINE RECORDS
+            DATASET: {dataset.filename} · {dataset.profile.row_count} BASELINE RECORDS · DOMAIN: {isMfg ? "MANUFACTURING TELEMETRY" : "RETAIL SALES"}
           </p>
         </div>
 
@@ -249,20 +405,22 @@ export function ConfigureView({
       <div className="demo-preset-banner">
         <div className="demo-preset-info">
           <div className="demo-preset-title">
-            DEMO TRIPWIRE SCENARIO: DUPLICATE ROW EVALUATION
+            {isMfg
+              ? "DEMO TRIPWIRE SCENARIO: DUPLICATE SENSOR TELEMETRY EVALUATION"
+              : "DEMO TRIPWIRE SCENARIO: DUPLICATE ROW EVALUATION"}
           </div>
           <div className="demo-preset-desc">
             {isUniquenessActive ? (
               <span>
-                <strong>HARDENED STATE:</strong> Unique Transaction ID check is{" "}
-                <strong>ENABLED</strong>. Injected duplicates will be trapped and blocked at the
+                <strong>HARDENED STATE:</strong> {isMfg ? "Composite Machine & Timestamp Uniqueness check" : "Unique Transaction ID check"} is{" "}
+                <strong>ENABLED</strong>. Injected {isMfg ? "duplicate telemetry frames" : "duplicates"} will be trapped and blocked at the
                 validation gate.
               </span>
             ) : (
               <span>
-                <strong>BASELINE VULNERABILITY:</strong> Unique Transaction ID check is{" "}
-                <strong>DISABLED</strong>. Injected duplicate ORD-101 will silently bypass
-                safeguards and inflate revenue by +₹800.
+                <strong>BASELINE VULNERABILITY:</strong> {isMfg ? "Machine/Timestamp Uniqueness check" : "Unique Transaction ID check"} is{" "}
+                <strong>DISABLED</strong>. Injected {isMfg ? "duplicate reading RDG-01-0001" : "duplicate ORD-101"} will silently bypass
+                safeguards and {isMfg ? "distort telemetry aggregations and energy/production totals." : "inflate revenue by +₹800."}
               </span>
             )}
           </div>
@@ -317,14 +475,19 @@ export function ConfigureView({
           </div>
 
           {mutations.map((mut, idx) => {
-            const mutDef = MUTATION_TYPES.find((m) => m.value === mut.mutation_type);
+            const mutDef = mutationTypes.find((m) => m.value === mut.mutation_type);
             const needsColumn =
               mut.mutation_type === "missing_required_value" ||
               mut.mutation_type === "invalid_quantity" ||
-              mut.mutation_type === "invalid_unit_price";
+              mut.mutation_type === "invalid_unit_price" ||
+              mut.mutation_type === "missing_sensor_value" ||
+              mut.mutation_type === "invalid_sensor_value" ||
+              mut.mutation_type === "invalid_production_value";
             const needsValue =
               mut.mutation_type === "invalid_quantity" ||
-              mut.mutation_type === "invalid_unit_price";
+              mut.mutation_type === "invalid_unit_price" ||
+              mut.mutation_type === "invalid_sensor_value" ||
+              mut.mutation_type === "invalid_production_value";
 
             return (
               <div key={mut.id} className="mutation-card-item">
@@ -340,7 +503,7 @@ export function ConfigureView({
                     >
                       FAULT #{idx + 1}
                     </span>
-                    <span className="badge badge-orange">{mutDef?.label}</span>
+                    <span className="badge badge-orange">{mutDef?.label || mut.mutation_type}</span>
                   </div>
 
                   {mutations.length > 1 && (
@@ -377,7 +540,7 @@ export function ConfigureView({
                         })
                       }
                     >
-                      {MUTATION_TYPES.map((t) => (
+                      {mutationTypes.map((t) => (
                         <option key={t.value} value={t.value}>
                           {t.label}
                         </option>
@@ -387,16 +550,23 @@ export function ConfigureView({
 
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label" htmlFor={`mut-target-${mut.id}`}>
-                      Target Transaction ID
+                      {isMfg ? "Target Reading ID" : "Target Transaction ID"}
                     </label>
                     <input
                       id={`mut-target-${mut.id}`}
                       className="form-control"
                       type="text"
-                      placeholder="e.g. ORD-101"
-                      value={mut.target_transaction_id}
+                      placeholder={isMfg ? "e.g. RDG-01-0001" : "e.g. ORD-101"}
+                      value={
+                        isMfg
+                          ? mut.target_record_id || mut.target_transaction_id || ""
+                          : mut.target_transaction_id || mut.target_record_id || ""
+                      }
                       onChange={(e) =>
-                        updateMutation(mut.id, { target_transaction_id: e.target.value })
+                        updateMutation(mut.id, {
+                          target_transaction_id: e.target.value,
+                          target_record_id: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -441,7 +611,7 @@ export function ConfigureView({
                           id={`mut-val-${mut.id}`}
                           className="form-control"
                           type="number"
-                          placeholder="-1 or 0"
+                          placeholder={isMfg ? "-5.0 or 150.0" : "-1 or 0"}
                           value={mut.value}
                           onChange={(e) =>
                             updateMutation(mut.id, { value: e.target.value })
@@ -460,7 +630,11 @@ export function ConfigureView({
                     id={`mut-desc-${mut.id}`}
                     className="form-control"
                     type="text"
-                    placeholder="e.g. Duplicate row injection to verify uniqueness constraint"
+                    placeholder={
+                      isMfg
+                        ? "e.g. Duplicate sensor frame injection to test uniqueness safeguard"
+                        : "e.g. Duplicate row injection to verify uniqueness constraint"
+                    }
                     value={mut.description}
                     onChange={(e) =>
                       updateMutation(mut.id, { description: e.target.value })
@@ -489,7 +663,7 @@ export function ConfigureView({
             <div>
               <div className="card-title">Validation Checkpoints</div>
               <div className="card-subtitle">
-                Rules currently active in the pipeline test harness
+                Rules currently active in the {isMfg ? "industrial telemetry" : "sales"} pipeline test harness
               </div>
             </div>
             <span className="badge badge-navy">
@@ -498,7 +672,7 @@ export function ConfigureView({
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-            {RULE_DEFINITIONS.map(({ key, name, desc, isKeyDemo }) => {
+            {ruleDefinitions.map(({ key, name, desc, isKeyDemo }) => {
               const checked = Boolean(rules[key]);
               return (
                 <div

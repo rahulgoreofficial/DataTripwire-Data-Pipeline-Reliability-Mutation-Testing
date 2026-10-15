@@ -13,6 +13,7 @@ interface PipelineIllustrationProps {
   status?: "neutral" | "survived" | "detected";
   mutationType?: string;
   hasUniquenessRule?: boolean;
+  domain?: string;
 }
 
 export function PipelineIllustration({
@@ -20,7 +21,9 @@ export function PipelineIllustration({
   status = "neutral",
   mutationType = "duplicate_row",
   hasUniquenessRule = false,
+  domain = "sales",
 }: PipelineIllustrationProps) {
+  const isMfg = domain === "manufacturing";
   const isDetected = status === "detected" || (mode === "hero" && hasUniquenessRule);
   const isSurvived = status === "survived" || (mode === "hero" && !hasUniquenessRule && status === "neutral");
 
@@ -278,13 +281,13 @@ export function PipelineIllustration({
             fontWeight="600"
             fontFamily="var(--font-sans)"
           >
-            Total Revenue
+            {isMfg ? "Telemetry Stream" : "Total Revenue"}
           </text>
 
           {isDetected ? (
             <>
               <text x="10" y="62" fill="var(--clr-success)" fontSize="13" fontWeight="700" fontFamily="var(--font-mono)">
-                ₹11,300.00
+                {isMfg ? "5,040 Readings" : "₹11,300.00"}
               </text>
               <text x="10" y="80" fill="var(--clr-text-muted)" fontSize="8" fontFamily="var(--font-mono)">
                 Protected · 0 Drift
@@ -293,16 +296,16 @@ export function PipelineIllustration({
           ) : isSurvived ? (
             <>
               <text x="10" y="62" fill="var(--clr-signal-orange)" fontSize="13" fontWeight="700" fontFamily="var(--font-mono)">
-                ₹12,100.00
+                {isMfg ? "5,041 Readings" : "₹12,100.00"}
               </text>
               <text x="10" y="80" fill="var(--clr-text-secondary)" fontSize="8" fontFamily="var(--font-mono)">
-                Corrupted (+₹800)
+                {isMfg ? "Corrupted (+1 Replay)" : "Corrupted (+₹800)"}
               </text>
             </>
           ) : (
             <>
               <text x="10" y="62" fill="var(--clr-text-primary)" fontSize="13" fontWeight="700" fontFamily="var(--font-mono)">
-                ₹11,300.00
+                {isMfg ? "5,040 Readings" : "₹11,300.00"}
               </text>
               <text x="10" y="80" fill="var(--clr-text-muted)" fontSize="8" fontFamily="var(--font-mono)">
                 Baseline State
