@@ -1,0 +1,51 @@
+"""Domain enumerations for DataTripwire.
+
+These enums standardize mutation types, rule categories, finding severities,
+and evaluation statuses across all phases of the platform.
+"""
+
+from enum import Enum
+
+
+class MutationType(str, Enum):
+    """Supported categories of synthetic data mutations.
+    
+    Each category targets a distinct vulnerability in data pipelines.
+    """
+    DUPLICATE_ROW = "duplicate_row"
+    MISSING_REQUIRED_VALUE = "missing_required_value"
+    INVALID_QUANTITY = "invalid_quantity"
+    INVALID_UNIT_PRICE = "invalid_unit_price"
+    DROPPED_ROW = "dropped_row"
+
+
+class FindingSeverity(str, Enum):
+    """Severity classification for validation findings."""
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    CRITICAL = "critical"
+
+
+class RuleType(str, Enum):
+    """Categorization of data-quality rules."""
+    UNIQUENESS = "uniqueness"
+    NOT_NULL = "not_null"
+    VALUE_RANGE = "value_range"
+    DATA_TYPE = "data_type"
+    DATE_VALIDITY = "date_validity"
+
+
+class RecommendationStatus(str, Enum):
+    """Lifecycle status of a generated rule recommendation."""
+    SUGGESTED = "suggested"
+    APPLIED = "applied"
+    DISMISSED = "dismissed"
+
+
+class EvaluationStatus(str, Enum):
+    """High-level outcome for a mutation test."""
+    DETECTED = "detected"
+    ESCAPED = "escaped"
+    INAPPLICABLE = "inapplicable"
+    FAILED = "failed"
